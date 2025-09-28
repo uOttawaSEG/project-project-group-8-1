@@ -4,6 +4,7 @@ public class Student extends User{
     private String programOfStudy;
 
     public Student(String programOfStudy) {
+        super();
         this.programOfStudy = programOfStudy;
     }
 
