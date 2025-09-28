@@ -72,9 +72,15 @@ public abstract class User {
      * Checks if there are other Users with the same email address in the database when the register()
      * method is called.
      *
+     * @param emailAddressUsername
      * @return isADuplicate
      */
-    protected boolean checkDuplicates() {
+    protected boolean checkDuplicates(String emailAddressUsername) {
+        for (User user:userList){
+            if(emailAddressUsername.equals(user.getEmailAddressUsername())){
+                return true;
+            }
+        }
         return false;
     } //dummy method
 
