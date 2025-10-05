@@ -40,13 +40,8 @@ public class StudentSignUp extends AppCompatActivity {
             String programOfStudy = editTextProgram.getText().toString();
 
             //Create a new Student object using the constructor
-            User user = new Student(programOfStudy);
-            //Set all the information necessary
-            user.setAccountPassword(password);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setEmailAddressUsername(email);
-            user.setPhoneNumber(phone);
+            User user = new Student(programOfStudy, firstName, lastName, email, password, phone);
+            //Register User into list of Students
             user.register(user);
 
             //Show confirmation (or save to database / SharedPreferences)

@@ -18,6 +18,13 @@ public abstract class User {
         this.phoneNumber = null;
 
     }
+    public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber){
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
+        this.setEmailAddressUsername(emailAddressUsername);
+        this.setAccountPassword(accountPassword);
+        this.setPhoneNumber(phoneNumber);
+    }
 
     /**
      * Takes in information about the person registering, then creates an account of type User for them

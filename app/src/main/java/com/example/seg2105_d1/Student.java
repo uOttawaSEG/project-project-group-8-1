@@ -3,8 +3,8 @@ package com.example.seg2105_d1;
 public class Student extends User{
     private String programOfStudy;
 
-    public Student(String programOfStudy) {
-        super();
+    public Student(String programOfStudy, String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber) {
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
         this.programOfStudy = programOfStudy;
     }
 
