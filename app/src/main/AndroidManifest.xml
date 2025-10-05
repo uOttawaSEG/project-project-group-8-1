@@ -15,6 +15,9 @@
             android:name=".TutorSignUp"
             android:exported="false" />
         <activity
+            android:name=".WelcomeScreen"
+            android:exported="false" />
+        <activity
             android:name=".SignInScreen"
             android:exported="false" />
         <activity
