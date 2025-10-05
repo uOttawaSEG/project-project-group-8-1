@@ -8,10 +8,53 @@
     tools:context=".SignUpScreen">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/signUpSelectTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Up Screen"
-        tools:layout_editor_absoluteX="200dp"
-        tools:layout_editor_absoluteY="200dp" />
+        android:gravity="center"
+        android:text="Sign Up"
+        android:textSize="60sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.357" />
+
+    <TextView
+        android:id="@+id/signUpSelectSubtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select a user type."
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpSelectTitle"
+        app:layout_constraintVertical_bias="0.033" />
+
+    <Button
+        android:id="@+id/studentButton"
+        android:layout_width="143dp"
+        android:layout_height="78dp"
+        android:onClick="userTypeButtonClicked"
+        android:text="Student"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpSelectSubtitle"
+        app:layout_constraintVertical_bias="0.038" />
+
+    <Button
+        android:id="@+id/tutorButton"
+        android:layout_width="143dp"
+        android:layout_height="78dp"
+        android:onClick="userTypeButtonClicked"
+        android:text="Tutor"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/studentButton"
+        app:layout_constraintVertical_bias="0.043" />
 </androidx.constraintlayout.widget.ConstraintLayout>
