@@ -1,8 +1,6 @@
 package com.example.seg2105_d1;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,31 +8,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class SignUpScreen extends AppCompatActivity {
+public class TutorSignUp extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_sign_up_screen);
+        setContentView(R.layout.activity_tutor_sign_up);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    }
-
-    public void userTypeButtonClicked(View v){
-
-        int pressID = v.getId();
-
-        if(pressID== R.id.studentButton){
-            Intent intent = new Intent(this, StudentSignUp.class);
-            startActivity(intent);
-        } else if (pressID == R.id.tutorButton){
-            Intent intent = new Intent(this,TutorSignUp.class);
-            startActivity(intent);
-        }
-
     }
 }
