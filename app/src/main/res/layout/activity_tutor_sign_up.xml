@@ -7,4 +7,126 @@
     android:layout_height="match_parent"
     tools:context=".TutorSignUp">
 
+    <EditText
+        android:id="@+id/lNameTutor"
+        android:layout_width="297dp"
+        android:layout_height="37dp"
+        android:ems="10"
+        android:hint="Last Name"
+        android:inputType="text"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fNameTutor"
+        app:layout_constraintVertical_bias="0.024" />
+
+    <EditText
+        android:id="@+id/fNameTutor"
+        android:layout_width="297dp"
+        android:layout_height="37dp"
+        android:ems="10"
+        android:hint="First Name"
+        android:inputType="text"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpTutorSubtitle"
+        app:layout_constraintVertical_bias="0.096" />
+
+    <TextView
+        android:id="@+id/signUpTutorSubtitle"
+        android:layout_width="174dp"
+        android:layout_height="26dp"
+        android:gravity="center_horizontal"
+        android:text="Sign Up for Tutor"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpTutorTitle"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/signUpTutorTitle"
+        android:layout_width="222dp"
+        android:layout_height="73dp"
+        android:gravity="center"
+        android:text="Sign Up"
+        android:textSize="48sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.072" />
+
+    <EditText
+        android:id="@+id/tutorEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lNameTutor"
+        app:layout_constraintVertical_bias="0.067" />
+
+    <EditText
+        android:id="@+id/tutorPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tutorEmail"
+        app:layout_constraintVertical_bias="0.028" />
+
+    <EditText
+        android:id="@+id/tutorPhone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Phone Number"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tutorPassword"
+        app:layout_constraintVertical_bias="0.035" />
+
+    <Spinner
+        android:id="@+id/highestDegreeOptions"
+        android:layout_width="205dp"
+        android:layout_height="45dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tutorPhone"
+        app:layout_constraintVertical_bias="0.189" />
+
+    <TextView
+        android:id="@+id/highestDegreeText"
+        android:layout_width="127dp"
+        android:layout_height="31dp"
+        android:gravity="bottom"
+        android:text="Highest Degree:"
+        android:textSize="17sp"
+        app:layout_constraintBottom_toTopOf="@+id/highestDegreeOptions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.387"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tutorPhone"
+        app:layout_constraintVertical_bias="1.0" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
