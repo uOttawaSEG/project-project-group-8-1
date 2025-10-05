@@ -27,7 +27,6 @@ public abstract class User {
      */
     public abstract void register(User u);
 
-
     public String getFirstName() {
         return this.firstName;
     }

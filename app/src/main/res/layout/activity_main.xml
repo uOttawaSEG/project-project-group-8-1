@@ -20,13 +20,14 @@
         android:id="@+id/signInButton"
         android:layout_width="143dp"
         android:layout_height="78dp"
-        android:onClick="signInOnClick"
+        android:onClick="buttonClick"
         android:text="Sign In" />
 
     <Button
         android:id="@+id/signUpButton"
         android:layout_width="143dp"
         android:layout_height="78dp"
+        android:onClick="buttonClick"
         android:text="Sign Up" />
 
 </LinearLayout>
