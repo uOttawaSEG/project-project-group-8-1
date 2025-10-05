@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
         if(pressID == R.id.signUpButton){
-            Intent intent = new Intent(this, SignUpScreen.class);
+            Intent intent = new Intent(this, StudentSignUp.class);
             startActivity(intent);
             //do something
         }
