@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1">
         <activity
+            android:name=".welcome"
+            android:exported="false" />
+        <activity
             android:name=".SignInScreen"
             android:exported="false" />
         <activity
