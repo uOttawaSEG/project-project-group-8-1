@@ -92,14 +92,13 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
     }
     private void signUp() {
 
-        System.out.println("test");
-
         try {
             newTutor.setFirstName(tutorFirstName.getText().toString());
             newTutor.setLastName(tutorLastName.getText().toString());
             newTutor.setEmailAddressUsername(tutorEmail.getText().toString());
             newTutor.setPhoneNumber(tutorPhone.getText().toString());
             newTutor.setAccountPassword(tutorPassword.getText().toString());
+            submitResgistration();
         }catch(IllegalArgumentException e){
             switch (e.getMessage()){
                 case "empty firstname":
@@ -125,7 +124,6 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
                     break;
             }
 
-            submitResgistration();
         }
 
         //register tutor (check if email already exists in user list)
@@ -156,7 +154,7 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             data.put("emailAddressUsername", newTutor.getEmailAddressUsername());
             data.put("accountPassword", newTutor.getAccountPassword());
             data.put("phoneNumber", newTutor.getPhoneNumber());
-            data.put("hightestDegree", newTutor.getHighestDegree());
+            data.put("highestDegree", newTutor.getHighestDegree());
             data.put("courseOffered", newTutor.getCoursesOffered());
 
             db.collection("users")

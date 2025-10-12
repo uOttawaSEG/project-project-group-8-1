@@ -9,8 +9,6 @@ public abstract class User {
     private String emailAddressUsername;
     private String accountPassword;
     private String phoneNumber;
-    private String role;
-    public static ArrayList<User> userList = new ArrayList<User>();
 
     /**
      * Constructor for the user
@@ -21,15 +19,13 @@ public abstract class User {
         this.emailAddressUsername = null;
         this.accountPassword = null;
         this.phoneNumber = null;
-        this.role = null;
     }
-    public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String role){
+    public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber){
         this.setFirstName(firstName);
         this.setLastName(lastName);
         this.setEmailAddressUsername(emailAddressUsername);
         this.setAccountPassword(accountPassword);
         this.setPhoneNumber(phoneNumber);
-        this.setRole(role);
     }
 
     public String getFirstName() {
@@ -103,18 +99,11 @@ public abstract class User {
                         throw new IllegalArgumentException("invalid phone number");
                     }
                 }
-            }else{
                 this.phoneNumber = phoneNumber;
+            }else{
+                throw new IllegalArgumentException("invalid phone number");
             }
         }
-    }
-
-    public String getRole(){
-        return this.role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }
 

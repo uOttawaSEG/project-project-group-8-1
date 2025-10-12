@@ -13,11 +13,11 @@ public class Student extends User {
     private String programOfStudy;
 
     public Student() {
-        super(null,null,null,null,null,"STUDENT");
+        super();
         this.programOfStudy = null;
     }
     public Student(String programOfStudy, String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber) {
-        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber, "STUDENT");
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
         this.programOfStudy = programOfStudy;
     }
 

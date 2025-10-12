@@ -8,13 +8,13 @@ public class Tutor extends User {
     private ArrayList<String> coursesOffered;
 
     public Tutor() {
-        super(null,null,null,null,null,"TUTOR");
+        super();
         this.highestDegree = null;
         this.coursesOffered = new ArrayList<String>();
     }
 
     public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered) {
-        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber, "TUTOR");
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
         this.highestDegree = highestDegree;
         this.coursesOffered = coursesOffered;
     }
