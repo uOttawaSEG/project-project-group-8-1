@@ -12,28 +12,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1" >
         <activity
-            android:name=".LoginActivity"
+            android:name=".ViewController.LoginPage"
             android:exported="false" />
         <activity
-            android:name=".TutorSignUp"
+            android:name=".ViewController.TutorSignUpPage"
             android:exported="false" />
         <activity
-            android:name=".WelcomeScreen"
+            android:name=".ViewController.WelcomePage"
             android:exported="false" />
         <activity
-            android:name=".welcome"
+            android:name=".ViewController.SignUpPage"
             android:exported="false" />
         <activity
-            android:name=".SignInScreen"
+            android:name=".ViewController.StudentSignUpPage"
             android:exported="false" />
         <activity
-            android:name=".SignUpScreen"
-            android:exported="false" />
-        <activity
-            android:name=".StudentSignUp"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".ViewController.MainPage"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

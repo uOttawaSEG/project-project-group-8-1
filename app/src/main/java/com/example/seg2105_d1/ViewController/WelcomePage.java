@@ -1,4 +1,4 @@
-package com.example.seg2105_d1;
+package com.example.seg2105_d1.ViewController;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +11,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class WelcomeScreen extends AppCompatActivity {
+import com.example.seg2105_d1.R;
+
+public class WelcomePage extends AppCompatActivity {
     TextView welcomeTextView;
     Button logOffButton;
 
@@ -42,7 +44,7 @@ public class WelcomeScreen extends AppCompatActivity {
 
         //finishes the activity, returns to login activity
         logOffButton.setOnClickListener(v -> {
-            Intent intent1 = new Intent(WelcomeScreen.this, MainActivity.class);
+            Intent intent1 = new Intent(WelcomePage.this, MainPage.class);
             startActivity(intent1);
             finish();
         });

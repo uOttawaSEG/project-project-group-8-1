@@ -1,4 +1,4 @@
-package com.example.seg2105_d1;
+package com.example.seg2105_d1.ViewController;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,13 +10,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class SignUpScreen extends AppCompatActivity {
+import com.example.seg2105_d1.R;
+
+public class MainPage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_sign_up_screen);
+        setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -24,17 +26,18 @@ public class SignUpScreen extends AppCompatActivity {
         });
     }
 
-    public void userTypeButtonClicked(View v){
+    public void buttonClick(View view) {
 
-        int pressID = v.getId();
+        int pressID = view.getId();
 
-        if(pressID== R.id.studentButton){
-            Intent intent = new Intent(this, StudentSignUp.class);
-            startActivity(intent);
-        } else if (pressID == R.id.tutorButton){
-            Intent intent = new Intent(this,TutorSignUp.class);
+        if(pressID == R.id.signInButton){
+            Intent intent = new Intent(this, LoginPage.class);
             startActivity(intent);
         }
-
+        if(pressID == R.id.signUpButton){
+            Intent intent = new Intent(this, SignUpPage.class);
+            startActivity(intent);
+            //do something
+        }
     }
 }
