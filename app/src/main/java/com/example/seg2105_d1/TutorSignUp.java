@@ -100,7 +100,6 @@ public class TutorSignUp extends AppCompatActivity implements AdapterView.OnItem
         newTutor.setPhoneNumber(phoneNumber);
 
         //register tutor (check if email already exists in user list)
-        newTutor.register(newTutor);
 
         //confirmation toast
         Toast.makeText(this,"New Tutor Created: " + firstName + " " + lastName, Toast.LENGTH_SHORT).show();

@@ -1,12 +1,15 @@
 package com.example.seg2105_d1;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public abstract class User {
     private String firstName, lastName, emailAddressUsername, accountPassword, phoneNumber;
-
+    private DatabaseReference mDatabase;
     public static ArrayList<User> userList = new ArrayList<User>();
 
     /**
@@ -34,7 +37,7 @@ public abstract class User {
      *
      * @param u
      */
-    public abstract void register(User u);
+    public abstract void register(User u, RegisterCallback r);
 
     public String getFirstName() {
         return this.firstName;
@@ -96,22 +99,6 @@ public abstract class User {
         throw new IllegalArgumentException("Input is not a phone number.");
 
     }
-
-    /**
-     * Checks if there are other Users with the same email address in the database when the register()
-     * method is called.
-     *
-     * @param emailAddressUsername
-     * @return isADuplicate
-     */
-    protected static boolean checkDuplicates(String emailAddressUsername) {
-        for (User user:userList){
-            if(emailAddressUsername.equals(user.getEmailAddressUsername())){
-                return true;
-            }
-        }
-        return false;
-    } //dummy method
 
     /**
      * Checks if the login information is correct, then returns the user that which corresponds to the

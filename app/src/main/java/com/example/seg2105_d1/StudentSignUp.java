@@ -42,11 +42,18 @@ public class StudentSignUp extends AppCompatActivity {
             //Create a new Student object using the constructor
             User user = new Student(programOfStudy, firstName, lastName, email, password, phone);
             //Register User into list of Students
-            user.register(user);
+            user.register(user, new RegisterCallback() {
+                @Override
+                public void onSuccess() {
+                    //Show confirmation
+                    Toast.makeText(StudentSignUp.this, "User created: " + user.getFirstName() + " " + user.getLastName(), Toast.LENGTH_SHORT).show();
+                }
 
-            //Show confirmation (or save to database / SharedPreferences)
-            Toast.makeText(this, "User created: " + user.getFirstName() + " " + user.getLastName(), Toast.LENGTH_SHORT).show();
-
+                @Override
+                public void onFailure(String s) {
+                    Toast.makeText(StudentSignUp.this, "Registration failed: " + s, Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
     }
