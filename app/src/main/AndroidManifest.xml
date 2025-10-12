@@ -21,6 +21,9 @@
             android:name=".WelcomeScreen"
             android:exported="false" />
         <activity
+            android:name=".welcome"
+            android:exported="false" />
+        <activity
             android:name=".SignInScreen"
             android:exported="false" />
         <activity
