@@ -25,6 +25,10 @@ public class Tutor extends User{
         return this.coursesOffered;
     }
 
+    /**
+     * Adds courses.
+     * Precondition: course is legit.
+     */
     public void addCourses(String newCourse){
         coursesOffered.add(newCourse);
     }

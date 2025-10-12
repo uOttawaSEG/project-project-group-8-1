@@ -1,6 +1,8 @@
 package com.example.seg2105_d1;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public abstract class User {
     private String firstName, lastName, emailAddressUsername, accountPassword, phoneNumber;
@@ -50,12 +52,18 @@ public abstract class User {
         this.lastName = lastName;
     }
 
-    public String getEmailAddressUsername() {
-        return this.emailAddressUsername;
-    }
+    public String getEmailAddressUsername() {return this.emailAddressUsername;}
 
     public void setEmailAddressUsername(String emailAddressUsername) {
-        this.emailAddressUsername = emailAddressUsername;
+        //regex setup to verify valid email address
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@" + "(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        Pattern emailPattern = Pattern.compile(emailRegex);
+
+        if(emailPattern.matcher(emailAddressUsername).matches()) {
+            this.emailAddressUsername = emailAddressUsername;
+        } else {
+            throw new IllegalArgumentException("Input is not an email address.");
+        }
     }
 
     public String getAccountPassword() {
@@ -71,7 +79,22 @@ public abstract class User {
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+
+        if(phoneNumber!=null){
+            if(phoneNumber.length()==10){
+                for(char c : phoneNumber.toCharArray()){
+                    if(!Character.isDigit(c)){
+                        throw new IllegalArgumentException("Phone number contains non-digit characters.");
+                    }
+                }
+                this.phoneNumber = phoneNumber;
+                return;
+            }
+        } else {
+            throw new IllegalArgumentException("Please enter a phone number.");
+        }
+        throw new IllegalArgumentException("Input is not a phone number.");
+
     }
 
     /**
@@ -81,7 +104,7 @@ public abstract class User {
      * @param emailAddressUsername
      * @return isADuplicate
      */
-    protected boolean checkDuplicates(String emailAddressUsername) {
+    protected static boolean checkDuplicates(String emailAddressUsername) {
         for (User user:userList){
             if(emailAddressUsername.equals(user.getEmailAddressUsername())){
                 return true;

@@ -6,6 +6,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -24,6 +25,8 @@ public class TutorSignUp extends AppCompatActivity implements AdapterView.OnItem
 
     //editText variables
     EditText tutorFirstName, tutorLastName, tutorEmail, tutorPassword, tutorPhone, tutorCourse;
+
+    TextView errorBox;
 
 
     @Override
@@ -53,6 +56,8 @@ public class TutorSignUp extends AppCompatActivity implements AdapterView.OnItem
         tutorPhone = findViewById(R.id.tutorPhone);
         tutorCourse = findViewById(R.id.tutorCourses);
 
+        errorBox = findViewById(R.id.errorText);
+
     }
 
     @Override
@@ -67,6 +72,7 @@ public class TutorSignUp extends AppCompatActivity implements AdapterView.OnItem
     public void addCourse(View v) {
         String course = tutorCourse.getText().toString();
         newTutor.addCourses(course);
+        tutorCourse.getText().clear();
 
     }
 
@@ -82,8 +88,15 @@ public class TutorSignUp extends AppCompatActivity implements AdapterView.OnItem
         //setting tutor instance variables
         newTutor.setFirstName(firstName);
         newTutor.setLastName(lastName);
-        newTutor.setEmailAddressUsername(email);
+
+        try {
+            newTutor.setEmailAddressUsername(email);
+        } catch(IllegalArgumentException e) {
+
+        }
+
         newTutor.setAccountPassword(password);
+
         newTutor.setPhoneNumber(phoneNumber);
 
         //register tutor (check if email already exists in user list)

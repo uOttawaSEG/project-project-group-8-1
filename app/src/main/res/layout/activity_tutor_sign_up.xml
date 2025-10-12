@@ -29,25 +29,22 @@
         android:hint="First Name"
         android:inputType="text"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUpTutorSubtitle"
-        app:layout_constraintVertical_bias="0.096" />
+        tools:layout_editor_absoluteY="196dp" />
 
     <TextView
         android:id="@+id/signUpTutorSubtitle"
         android:layout_width="174dp"
         android:layout_height="26dp"
+        android:layout_marginBottom="12dp"
         android:gravity="center_horizontal"
         android:text="Sign Up for Tutor"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/errorText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUpTutorTitle"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/signUpTutorTitle"
@@ -56,12 +53,12 @@
         android:gravity="center"
         android:text="Sign Up"
         android:textSize="48sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/signUpTutorSubtitle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.072" />
+        app:layout_constraintVertical_bias="0.681" />
 
     <EditText
         android:id="@+id/tutorEmail"
@@ -166,5 +163,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tutorCourses" />
+
+    <TextView
+        android:id="@+id/errorText"
+        android:layout_width="296dp"
+        android:layout_height="21dp"
+        android:layout_marginBottom="12dp"
+        android:gravity="center"
+        android:text="TextView"
+        android:textColor="#FF0000"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/fNameTutor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

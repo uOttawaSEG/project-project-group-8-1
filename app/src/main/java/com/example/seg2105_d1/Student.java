@@ -10,10 +10,17 @@ public class Student extends User{
 
     public String getProgramOfStudy() { return this.programOfStudy; }
 
-    public void setProgramOfStudy(String programOfStudy) { this.programOfStudy = programOfStudy; }
+    /**
+     * Sets student's program of study.
+     * @param programOfStudy
+     * Precondition: program is legit.
+     */
+    public void setProgramOfStudy(String programOfStudy) {
+        this.programOfStudy = programOfStudy;
+    }
 
     @Override
-    public void register(User u) {
+    public static void register(User u) {
         if(!checkDuplicates(u.getEmailAddressUsername())) {
             return;
         }
