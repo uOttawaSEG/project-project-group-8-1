@@ -4,6 +4,7 @@ import static com.example.seg2105_d1.User.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -40,10 +41,11 @@ public class LoginActivity extends AppCompatActivity {
                 User user = login(emailAddress, password);
 
                 Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
-                intent.putExtra("user_type", user.getClass());
+                intent.putExtra("user_type", user.getClass().toString());
             }
             catch (IncorrectLoginException e){
-
+                errorText.setText("Incorrect email or password.");
+                errorText.setVisibility(View.VISIBLE);
             }
         });
 
