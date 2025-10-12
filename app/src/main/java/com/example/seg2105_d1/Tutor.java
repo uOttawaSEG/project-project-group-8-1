@@ -31,13 +31,8 @@ public class Tutor extends User{
 
     //temp structure for register method
     @Override
-    public void register(User u) {
+    public void register(User u, RegisterCallback r) {
 
-        if(checkDuplicates(u.getEmailAddressUsername())){
-            return;
-        }
-
-        userList.add(u);
     }
 
 }
