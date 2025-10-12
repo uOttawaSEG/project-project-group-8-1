@@ -10,7 +10,7 @@ public class Tutor extends User{
     public Tutor() {
         super();
         this.highestDegree = null;
-        this.coursesOffered = null;
+        this.coursesOffered = new ArrayList<String>();
     }
 
     public String getHighestDegree() {
@@ -25,8 +25,8 @@ public class Tutor extends User{
         return this.coursesOffered;
     }
 
-    public void setCoursesOffered(){
-        //add courses to coursesOffered arrayList; needs ui consideration
+    public void addCourses(String newCourse){
+        coursesOffered.add(newCourse);
     }
 
     //temp structure for register method
