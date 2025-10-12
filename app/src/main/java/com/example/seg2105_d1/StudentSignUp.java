@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class StudentSignUp extends AppCompatActivity {
 
-    EditText editTextFirstName, editTextLastName, editTextEmail, editTextPassword, editTextPhone, editTextProgram, editTextAge;
+    EditText editTextFirstName, editTextLastName, editTextEmail, editTextPassword, editTextPhone, editTextProgram;
     Button btnSignUp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
