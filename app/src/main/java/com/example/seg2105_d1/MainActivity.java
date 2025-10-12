@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
         int pressID = view.getId();
 
         if(pressID == R.id.signInButton){
-            Intent intent = new Intent(this, SignInScreen.class);
+            Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
         if(pressID == R.id.signUpButton){

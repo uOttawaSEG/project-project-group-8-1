@@ -45,52 +45,58 @@ public class LoginActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-        btnLogIn.setOnClickListener(v ->{
-
-//            //Get User input
-//            String emailAddress = editTextEmailAddress.getText().toString();
-//            String password = editTextPassword.getText().toString();
-//            try {
-//                User user = login(emailAddress, password);
+//        btnLogIn.setOnClickListener(v ->{
 //
-//                Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
-//                intent.putExtra("user_type", user.getClass().toString());
-//            }
-//            catch (IncorrectLoginException e){
-//                errorText.setText("Incorrect email or password.");
-//                errorText.setVisibility(View.VISIBLE);
-//            }
+//                //Get User input
+//                String emailAddress = editTextEmailAddress.getText().toString();
+//                String password = editTextPassword.getText().toString();
+//                try {
+//                    User user = login(emailAddress, password);
+//
+//                    Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
+//                    intent.putExtra("user_type", user.getClass().toString());
+//                }
+//                catch (IncorrectLoginException e){
+//                    errorText.setText("Incorrect email or password.");
+//                    errorText.setVisibility(View.VISIBLE);
+//                }
+//
+//        });
 
-            loginAction();
-        });
-
+        btnLogIn.setOnClickListener(v -> loginAction());
     }
 
     private void loginAction(){
         String email = editTextEmailAddress.getText() == null ? "" : editTextEmailAddress.getText().toString().trim();
-        String password = editTextPassword.getText() == null ? "" : editTextEmailAddress.getText().toString().trim();
+        String password = editTextPassword.getText() == null ? "" : editTextPassword.getText().toString().trim();
 
         errorText.setVisibility(View.GONE);
 
         if(TextUtils.isEmpty(email) || TextUtils.isEmpty(password)){
             errorText.setText("Please enter email and password.");
             errorText.setVisibility(View.VISIBLE);
+        }else {
+            db.collection("users")
+                    .whereEqualTo("emailAddressUsername", email)
+                    .get()
+                    .addOnSuccessListener(this::handleLoginQueryResult)
+                    .addOnFailureListener(e -> {
+                        errorText.setText("Login failed " + e.getMessage());
+                        errorText.setVisibility(View.VISIBLE);
+                    });
         }
-
-        db.collection("users")
-                .whereEqualTo("emailAddressUsername",email)
-                .get()
-                .addOnSuccessListener(this::handleLoginQueryResult)
-                .addOnFailureListener(e -> {
-                    errorText.setText("Login failed " + e.getMessage());
-                    errorText.setVisibility(View.VISIBLE);
-                });
     }
 
     private void handleLoginQueryResult(QuerySnapshot queryDocumentSnapshots) {
+
+        String email = editTextEmailAddress.getText() == null ? "" : editTextEmailAddress.getText().toString().trim();
+        String password = editTextPassword.getText() == null ? "" : editTextPassword.getText().toString().trim();
+        boolean loginSuccessful = true;
+
         if(queryDocumentSnapshots == null || queryDocumentSnapshots.isEmpty()){
-            errorText.setText("Incorrect email or password");
+            errorText.setText("User not found");
             errorText.setVisibility(View.VISIBLE);
+            loginSuccessful = false;
             return;
         }
 
@@ -100,17 +106,23 @@ public class LoginActivity extends AppCompatActivity {
         if(data == null){
             errorText.setText("Invalid user data");
             errorText.setVisibility(View.VISIBLE);
+            loginSuccessful = false;
+            return;
         }
 
-        if(!Objects.toString(data.get("accountPassword"), "").equals(editTextPassword)){
+        if(!Objects.toString(data.get("accountPassword"), "").equals(password)){
             errorText.setText("Incorrect email or password");
             errorText.setVisibility(View.VISIBLE);
+            loginSuccessful = false;
+            return;
         }
 
-        Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
-        intent.putExtra("user_type", Objects.toString(data.get("role"), "UNKOWN"));
-        startActivity(intent);
-        finish();
+        if(loginSuccessful) {
+            Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
+            intent.putExtra("user_type", Objects.toString(data.get("role"), "UNKOWN"));
+            startActivity(intent);
+            finish();
+        }
 
     }
 

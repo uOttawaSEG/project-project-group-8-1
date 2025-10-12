@@ -34,7 +34,7 @@ public class WelcomeScreen extends AppCompatActivity {
         String userType = intent.getStringExtra("user_type");   //gets the user type from intent
 
         if (userType != null) {
-            String message = "Welcome! You are logged in as" + userType;
+            String message = "Welcome! You are logged in as " + userType;
             welcomeTextView.setText(message);
         }else{
             welcomeTextView.setText("Welcome! User type unknown");
