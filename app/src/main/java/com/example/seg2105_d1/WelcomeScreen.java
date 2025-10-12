@@ -42,6 +42,8 @@ public class WelcomeScreen extends AppCompatActivity {
 
         //finishes the activity, returns to login activity
         logOffButton.setOnClickListener(v -> {
+            Intent intent1 = new Intent(WelcomeScreen.this, MainActivity.class);
+            startActivity(intent1);
             finish();
         });
     }

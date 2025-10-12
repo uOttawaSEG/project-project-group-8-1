@@ -100,7 +100,7 @@ public abstract class User {
      * @return user
      * @throws IncorrectLoginException
      */
-    public User login(String emailAddressUsername, String accountPassword) throws IncorrectLoginException {
+    public static User login(String emailAddressUsername, String accountPassword) throws IncorrectLoginException {
 
         for (User user : userList) {
             if (emailAddressUsername.equals(user.getEmailAddressUsername())) {
