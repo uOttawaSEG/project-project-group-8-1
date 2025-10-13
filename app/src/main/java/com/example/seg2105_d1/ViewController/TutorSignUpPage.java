@@ -1,6 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
-import android.os.Bundle;
+import  android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
