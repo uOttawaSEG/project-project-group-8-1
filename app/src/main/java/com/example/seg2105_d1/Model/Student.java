@@ -24,6 +24,11 @@ public class Student extends User {
     public String getProgramOfStudy() { return this.programOfStudy; }
 
     public void setProgramOfStudy(String programOfStudy) {
-        this.programOfStudy = programOfStudy;
+        if(programOfStudy.isEmpty()){
+            throw new IllegalArgumentException("empty programOfStudy");
+        }
+        else {
+            this.programOfStudy = programOfStudy;
+        }
     }
 }

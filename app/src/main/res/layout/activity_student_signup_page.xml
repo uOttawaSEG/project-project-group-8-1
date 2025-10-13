@@ -137,8 +137,8 @@
 
     <TextView
         android:id="@+id/studentSignUpErrorText"
-        android:layout_width="332dp"
-        android:layout_height="26dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="#FF0000"
         app:layout_constraintBottom_toTopOf="@+id/fNameStudentSignUp"

@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.Intent;
 import  android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -98,6 +99,9 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             newTutor.setEmailAddressUsername(tutorEmail.getText().toString());
             newTutor.setPhoneNumber(tutorPhone.getText().toString());
             newTutor.setAccountPassword(tutorPassword.getText().toString());
+            if(newTutor.getCoursesOffered().isEmpty()){
+                throw new IllegalArgumentException("empty courses offered");
+            }
             submitResgistration();
         }catch(IllegalArgumentException e){
             switch (e.getMessage()){
@@ -121,6 +125,9 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
                     break;
                 case "invalid phone number":
                     errorBox.setText("Phone number is invalid");
+                    break;
+                case "empty courses offered":
+                    errorBox.setText("No courses offered");
                     break;
             }
 
@@ -161,6 +168,9 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
                     .add(data)
                     .addOnSuccessListener(ref -> {
                         Toast.makeText(this,"New Tutor Created: " + newTutor.getFirstName() + " " + newTutor.getLastName(), Toast.LENGTH_SHORT).show();
+                        Intent intent1 = new Intent(TutorSignUpPage.this, LoginPage.class);
+                        startActivity(intent1);
+                        finish();
                     })
                     .addOnFailureListener(e -> {
                         errorBox.setText("Database connection lost due to " + e.getMessage());

@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.seg2105_d1.Model.Student;
 import com.example.seg2105_d1.Model.User;
 import com.example.seg2105_d1.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -104,6 +107,9 @@ public class StudentSignUpPage extends AppCompatActivity {
                     case "invalid phone number":
                         errorBox.setText("Phone number is invalid");
                         break;
+                    case "empty programOfStudy":
+                        errorBox.setText("Program of Study is empty");
+                        break;
                 }
             }
         });
@@ -137,6 +143,9 @@ public class StudentSignUpPage extends AppCompatActivity {
                     .add(data)
                     .addOnSuccessListener(ref -> {
                         Toast.makeText(this,"New Tutor Created: " + newStudent.getFirstName() + " " + newStudent.getLastName(), Toast.LENGTH_SHORT).show();
+                        Intent intent1 = new Intent(StudentSignUpPage.this, LoginPage.class);
+                        startActivity(intent1);
+                        finish();
                     })
                     .addOnFailureListener(e -> {
                         errorBox.setText("Database connection lost due to " + e.getMessage());
