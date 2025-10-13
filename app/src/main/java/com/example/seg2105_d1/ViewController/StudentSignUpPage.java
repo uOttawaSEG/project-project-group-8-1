@@ -142,7 +142,7 @@ public class StudentSignUpPage extends AppCompatActivity {
             db.collection("users")
                     .add(data)
                     .addOnSuccessListener(ref -> {
-                        Toast.makeText(this,"New Tutor Created: " + newStudent.getFirstName() + " " + newStudent.getLastName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this,"New Student Created: " + newStudent.getFirstName() + " " + newStudent.getLastName(), Toast.LENGTH_SHORT).show();
                         Intent intent1 = new Intent(StudentSignUpPage.this, LoginPage.class);
                         startActivity(intent1);
                         finish();
