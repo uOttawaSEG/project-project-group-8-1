@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".TutorSignUp">
+    tools:context=".ViewController.TutorSignUpPage">
 
     <EditText
         android:id="@+id/lNameTutor"
@@ -32,7 +32,7 @@
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/errorText" />
+        app:layout_constraintTop_toBottomOf="@+id/tutorSignUpErrorText" />
 
     <TextView
         android:id="@+id/signUpTutorSubtitle"
@@ -148,19 +148,17 @@
         android:layout_width="117dp"
         android:layout_height="58dp"
         android:layout_marginTop="32dp"
-        android:onClick="signUp"
         android:text="Sign Up"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tutorCourses" />
 
     <TextView
-        android:id="@+id/errorText"
-        android:layout_width="296dp"
-        android:layout_height="21dp"
+        android:id="@+id/tutorSignUpErrorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:gravity="center"
-        android:text="TextView"
         android:textColor="#FF0000"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"

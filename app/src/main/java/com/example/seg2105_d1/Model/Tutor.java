@@ -1,8 +1,8 @@
-package com.example.seg2105_d1;
+package com.example.seg2105_d1.Model;
 
 import java.util.ArrayList;
 
-public class Tutor extends User{
+public class Tutor extends User {
 
     private String highestDegree;
     private ArrayList<String> coursesOffered;
@@ -11,6 +11,12 @@ public class Tutor extends User{
         super();
         this.highestDegree = null;
         this.coursesOffered = new ArrayList<String>();
+    }
+
+    public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered) {
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
+        this.highestDegree = highestDegree;
+        this.coursesOffered = coursesOffered;
     }
 
     public String getHighestDegree() {
@@ -25,18 +31,9 @@ public class Tutor extends User{
         return this.coursesOffered;
     }
 
-    /**
-     * Adds courses.
-     * Precondition: course is legit.
-     */
     public void addCourses(String newCourse){
         coursesOffered.add(newCourse);
     }
 
-    //temp structure for register method
-    @Override
-    public void register(User u, RegisterCallback r) {
-
-    }
 
 }

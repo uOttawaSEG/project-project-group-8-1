@@ -1,6 +1,4 @@
-package com.example.seg2105_d1;
-
-import static com.example.seg2105_d1.User.login;
+package com.example.seg2105_d1.ViewController;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,22 +8,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import android.util.Log;
 
+import com.example.seg2105_d1.R;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Map;
 import java.util.Objects;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginPage extends AppCompatActivity {
 
     EditText editTextEmailAddress, editTextPassword;
     Button btnLogIn;
@@ -81,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener(this::handleLoginQueryResult)
                     .addOnFailureListener(e -> {
-                        errorText.setText("Login failed " + e.getMessage());
+                        errorText.setText("Database connection lost due to " + e.getMessage());
                         errorText.setVisibility(View.VISIBLE);
                     });
         }
@@ -118,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if(loginSuccessful) {
-            Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
+            Intent intent = new Intent(LoginPage.this, WelcomePage.class);
             intent.putExtra("user_type", Objects.toString(data.get("role"), "UNKOWN"));
             startActivity(intent);
             finish();

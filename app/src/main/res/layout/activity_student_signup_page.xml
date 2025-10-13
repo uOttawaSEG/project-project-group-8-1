@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".StudentSignUp">
+    tools:context=".ViewController.StudentSignUpPage">
 
     <TextView
         android:id="@+id/signUpDesc"
@@ -14,12 +14,10 @@
         android:gravity="center_horizontal"
         android:text="Sign Up for Student"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/signUpText"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/signUpText" />
 
     <TextView
         android:id="@+id/signUpText"
@@ -136,4 +134,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/programOfStudySignUp"
         app:layout_constraintVertical_bias="0.188" />
+
+    <TextView
+        android:id="@+id/studentSignUpErrorText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#FF0000"
+        app:layout_constraintBottom_toTopOf="@+id/fNameStudentSignUp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signUpDesc" />
 </androidx.constraintlayout.widget.ConstraintLayout>
