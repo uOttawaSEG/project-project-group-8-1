@@ -9,6 +9,7 @@ public abstract class User {
     private String emailAddressUsername;
     private String accountPassword;
     private String phoneNumber;
+    private String registrationStatus;
 
     /**
      * Constructor for the user
@@ -19,13 +20,15 @@ public abstract class User {
         this.emailAddressUsername = null;
         this.accountPassword = null;
         this.phoneNumber = null;
+        this.registrationStatus = null;
     }
-    public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber){
+    public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String registrationStatus){
         this.setFirstName(firstName);
         this.setLastName(lastName);
         this.setEmailAddressUsername(emailAddressUsername);
         this.setAccountPassword(accountPassword);
         this.setPhoneNumber(phoneNumber);
+        this.setRegistrationStatus(registrationStatus);
     }
 
     public String getFirstName() {
@@ -104,6 +107,20 @@ public abstract class User {
                 throw new IllegalArgumentException("invalid phone number");
             }
         }
+    }
+
+    public String getRegistrationStatus(){
+        return this.registrationStatus;
+    }
+
+    /*
+    Tutors and students can have 1 of 3 statuses.
+    PENDING
+    REGISTERED
+    REJECTED
+     */
+    public void setRegistrationStatus(String registrationStatus){
+        this.registrationStatus = registrationStatus;
     }
 }
 
