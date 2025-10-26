@@ -13,8 +13,8 @@ public class Tutor extends User {
         this.coursesOffered = new ArrayList<String>();
     }
 
-    public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered) {
-        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
+    public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered, String registrationStatus) {
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber, registrationStatus);
         this.highestDegree = highestDegree;
         this.coursesOffered = coursesOffered;
     }
@@ -35,5 +35,8 @@ public class Tutor extends User {
         coursesOffered.add(newCourse);
     }
 
-
+    @Override
+    public String getUserType() {
+        return "TUTOR";
+    }
 }

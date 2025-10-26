@@ -12,14 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1">
         <activity
-            android:name=".ViewController.AdminPage"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".ViewController.UserDetail"
+            android:exported="false"
+            android:theme="@style/Theme.SEG2105_D1" />
         <activity
             android:name=".ViewController.LoginPage"
             android:exported="false" />
@@ -36,8 +31,16 @@
             android:name=".ViewController.StudentSignUpPage"
             android:exported="false" />
         <activity
+            android:name=".ViewController.AwaitingApprovalPage"
+            android:exported="false" />
+        <activity
             android:name=".ViewController.MainPage"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

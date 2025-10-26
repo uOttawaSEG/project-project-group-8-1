@@ -111,10 +111,38 @@ public class LoginPage extends AppCompatActivity {
         }
 
         if(loginSuccessful) {
-            Intent intent = new Intent(LoginPage.this, WelcomePage.class);
-            intent.putExtra("user_type", Objects.toString(data.get("role"), "UNKOWN"));
-            startActivity(intent);
-            finish();
+            String registrationStatus = Objects.toString(data.get("registrationStatus"), "PENDING").toLowerCase();
+            switch (registrationStatus){
+                case "approved":
+                    Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
+                    registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
+                    startActivity(registeredIntent);
+                    finish();
+                    break;
+
+                case "pending":
+                    Intent pendingIntent = new Intent(LoginPage.this, AwaitingApprovalPage.class);
+                    pendingIntent.putExtra("registrationStatus", registrationStatus);
+                    pendingIntent.putExtra("user_email", email);
+                    startActivity(pendingIntent);
+                    finish();
+                    break;
+
+                case "rejected":
+                    Intent rejectedIntent = new Intent(LoginPage.this, AwaitingApprovalPage.class);
+                    rejectedIntent.putExtra("registrationStatus", registrationStatus);
+                    rejectedIntent.putExtra("user_email", email);
+                    startActivity(rejectedIntent);
+                    finish();
+                    break;
+
+                default:
+                    errorText.setText("Unknown Account Status. Please Contact Support at 666 666-6666");
+                    errorText.setVisibility(View.VISIBLE);
+                    break;
+            }
+
+
         }
 
     }

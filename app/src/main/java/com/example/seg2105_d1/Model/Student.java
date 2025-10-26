@@ -16,8 +16,8 @@ public class Student extends User {
         super();
         this.programOfStudy = null;
     }
-    public Student(String programOfStudy, String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber) {
-        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber);
+    public Student(String programOfStudy, String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String registrationStatus) {
+        super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber, registrationStatus);
         this.programOfStudy = programOfStudy;
     }
 
@@ -30,5 +30,10 @@ public class Student extends User {
         else {
             this.programOfStudy = programOfStudy;
         }
+    }
+
+    @Override
+    public String getUserType() {
+        return "STUDENT";
     }
 }

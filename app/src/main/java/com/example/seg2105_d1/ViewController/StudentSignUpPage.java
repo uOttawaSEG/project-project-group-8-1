@@ -83,6 +83,7 @@ public class StudentSignUpPage extends AppCompatActivity {
                 newStudent.setAccountPassword(password);
                 newStudent.setPhoneNumber(phone);
                 newStudent.setProgramOfStudy(programOfStudy);
+                newStudent.setRegistrationStatus("PENDING");
                 submitResgistration();
             } catch(IllegalArgumentException e) {
                 switch (e.getMessage()){
@@ -138,6 +139,7 @@ public class StudentSignUpPage extends AppCompatActivity {
             data.put("accountPassword", newStudent.getAccountPassword());
             data.put("phoneNumber", newStudent.getPhoneNumber());
             data.put("programOfStudy", newStudent.getProgramOfStudy());
+            data.put("registrationStatus", newStudent.getRegistrationStatus());
 
             db.collection("users")
                     .add(data)
