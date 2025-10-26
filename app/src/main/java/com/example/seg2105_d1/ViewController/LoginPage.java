@@ -122,12 +122,16 @@ public class LoginPage extends AppCompatActivity {
 
                 case "pending":
                     Intent pendingIntent = new Intent(LoginPage.this, AwaitingApprovalPage.class);
+                    pendingIntent.putExtra("registrationStatus", registrationStatus);
+                    pendingIntent.putExtra("user_email", email);
                     startActivity(pendingIntent);
                     finish();
                     break;
 
                 case "rejected":
                     Intent rejectedIntent = new Intent(LoginPage.this, AwaitingApprovalPage.class);
+                    rejectedIntent.putExtra("registrationStatus", registrationStatus);
+                    rejectedIntent.putExtra("user_email", email);
                     startActivity(rejectedIntent);
                     finish();
                     break;
