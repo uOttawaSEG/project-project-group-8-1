@@ -122,5 +122,7 @@ public abstract class User {
     public void setRegistrationStatus(String registrationStatus){
         this.registrationStatus = registrationStatus;
     }
+
+    public abstract String getUserType();
 }
 
