@@ -12,8 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1">
         <activity
-            android:name=".ViewController.AwaitingApprovalPage"
-            android:exported="false" />
+            android:name=".ViewController.UserDetail"
+            android:exported="false"
+            android:theme="@style/Theme.SEG2105_D1" />
         <activity
             android:name=".ViewController.LoginPage"
             android:exported="false" />
