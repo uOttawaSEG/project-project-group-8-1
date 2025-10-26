@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -15,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.seg2105_d1.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
@@ -48,26 +50,31 @@ public class UserDetail extends AppCompatActivity {
         btnApprove = findViewById(R.id.btnApprove);
         btnReject = findViewById(R.id.btnReject);
 
-        //userID from AdminList screen ***CHECK LOGIC
-        //get id from database id?
+        //emailaddress account from AdminList screen ***CHECK LOGIC
 
-        String userId = getIntent().getStringExtra("userId");
+        String emailAddressUsername = getIntent().getStringExtra("EmailAddressUsername");
 
-        if (userId != null) {
-            loadUserById(userId);
-        } else {
-            Toast.makeText(this, "No user data here", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        loadUserByAccount(emailAddressUsername);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
-    private void loadUserById(String userId) {
-        db.collection("users").document(userId).get()
+    private void loadUserByAccount(String emailAddressUsername) {
+        db.collection("users")
+                .whereEqualTo("emailAddressUsername", emailAddressUsername)
+                .get()
                 .addOnSuccessListener(this::populateUserDetails)
                 .addOnFailureListener(e -> Toast.makeText(this, "Error loading user", Toast.LENGTH_SHORT).show());
     }
 
-    private void populateUserDetails (DocumentSnapshot doc) {
+    private void populateUserDetails (QuerySnapshot queryDocumentSnapshots) {
+
+        DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+
         String firstName = doc.getString("firstName");
         String lastName = doc.getString("lastName");
         String email = doc.getString("emailAddressUsername");

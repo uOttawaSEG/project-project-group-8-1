@@ -73,13 +73,16 @@ public class AdminPage extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerUsers);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(null);
 
         Query query = db.collection("users")
                         .whereIn("role", Arrays.asList("STUDENT", "TUTOR"))
                                 .orderBy("registrationStatus");
 
-        FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
-                .setQuery(query, User.class)
+        FirestoreRecyclerOptions<User> options =
+                new FirestoreRecyclerOptions.Builder<User>()
+                        .setQuery(query, User.class)
+                        .setLifecycleOwner(this)
                         .build();
 
         adapter = new FirestoreRecyclerAdapter<User, VH>(options) {
@@ -97,10 +100,9 @@ public class AdminPage extends AppCompatActivity {
                 styleStatusChip(holder.chipStatus, status);
 
                 holder.itemView.setOnClickListener(v -> {
-                    Intent intent = new Intent(AdminPage.this, WelcomePage.class);
+                    Intent intent = new Intent(AdminPage.this, UserDetail.class);
                     intent.putExtra("EmailAddressUsername", model.getEmailAddressUsername());
                     startActivity(intent);
-                    finish();
                 });
             }
 
@@ -123,7 +125,4 @@ public class AdminPage extends AppCompatActivity {
 
         recyclerView.setAdapter(adapter);
     }
-
-    @Override protected void onStart() { super.onStart(); adapter.startListening(); }
-    @Override protected void onStop() { super.onStop(); adapter.stopListening(); }
 }
