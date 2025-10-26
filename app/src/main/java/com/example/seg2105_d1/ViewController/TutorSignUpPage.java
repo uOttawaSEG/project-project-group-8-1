@@ -102,6 +102,7 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             if(newTutor.getCoursesOffered().isEmpty()){
                 throw new IllegalArgumentException("empty courses offered");
             }
+            newTutor.setRegistrationStatus("PENDING");
             submitResgistration();
         }catch(IllegalArgumentException e){
             switch (e.getMessage()){
@@ -163,6 +164,7 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             data.put("phoneNumber", newTutor.getPhoneNumber());
             data.put("highestDegree", newTutor.getHighestDegree());
             data.put("courseOffered", newTutor.getCoursesOffered());
+            data.put("registrationStatus", newTutor.getRegistrationStatus());
 
             db.collection("users")
                     .add(data)
