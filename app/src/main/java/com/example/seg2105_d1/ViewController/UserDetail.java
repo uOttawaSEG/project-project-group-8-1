@@ -27,6 +27,7 @@ public class UserDetail extends AppCompatActivity {
 
     public TextView tvName, tvEmail, tvNum, tvClasses;
     public Button btnApprove, btnReject;
+    private String userDocId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,9 @@ public class UserDetail extends AppCompatActivity {
                 finish();
             }
         });
+
+        btnApprove.setOnClickListener(v -> updateUserStatus("APPROVED"));
+        btnReject.setOnClickListener(v -> updateUserStatus("REJECTED"));
     }
 
     private void loadUserByAccount(String emailAddressUsername) {
@@ -74,6 +78,7 @@ public class UserDetail extends AppCompatActivity {
     private void populateUserDetails (QuerySnapshot queryDocumentSnapshots) {
 
         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
+        userDocId = doc.getId();
 
         String firstName = doc.getString("firstName");
         String lastName = doc.getString("lastName");
@@ -99,4 +104,19 @@ public class UserDetail extends AppCompatActivity {
         }
     }
 
+    private void updateUserStatus(String updatedStatus){
+        if (userDocId == null) {
+            Toast.makeText(this, "User not loaded yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("users")
+                .document(userDocId)
+                .update("registrationStatus", updatedStatus)
+                .addOnSuccessListener(ref -> {
+                    Toast.makeText(this, "Successfully " + updatedStatus, Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> Toast.makeText(this, "Failed to update status", Toast.LENGTH_SHORT).show());
+    }
 }
