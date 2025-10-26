@@ -133,8 +133,8 @@ public class StudentSignUpPage extends AppCompatActivity {
         }else{
             Map<String, Object> data = new HashMap<>();
             data.put("role", "STUDENT");
-            data.put("firstname", newStudent.getFirstName());
-            data.put("lastname", newStudent.getLastName());
+            data.put("firstName", newStudent.getFirstName());
+            data.put("lastName", newStudent.getLastName());
             data.put("emailAddressUsername", newStudent.getEmailAddressUsername());
             data.put("accountPassword", newStudent.getAccountPassword());
             data.put("phoneNumber", newStudent.getPhoneNumber());

@@ -3,7 +3,7 @@ package com.example.seg2105_d1.Model;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public abstract class User {
+public class User {
     private String firstName;
     private String lastName;
     private String emailAddressUsername;
@@ -11,9 +11,14 @@ public abstract class User {
     private String phoneNumber;
     private String registrationStatus;
 
+    private String role;
+
+
     /**
      * Constructor for the user
      */
+
+
     public User() {
         this.firstName = null;
         this.lastName = null;
@@ -116,13 +121,14 @@ public abstract class User {
     /*
     Tutors and students can have 1 of 3 statuses.
     PENDING
-    REGISTERED
+    APPROVED
     REJECTED
      */
     public void setRegistrationStatus(String registrationStatus){
         this.registrationStatus = registrationStatus;
     }
 
+    public String getRole(){return this.role;}
     public abstract String getUserType();
 }
 
