@@ -113,7 +113,7 @@ public class LoginPage extends AppCompatActivity {
         if(loginSuccessful) {
             String registrationStatus = Objects.toString(data.get("registrationStatus"), "PENDING").toLowerCase();
             switch (registrationStatus){
-                case "registered":
+                case "approved":
                     Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
                     registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
                     startActivity(registeredIntent);

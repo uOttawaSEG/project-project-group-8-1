@@ -31,6 +31,9 @@
             android:name=".ViewController.StudentSignUpPage"
             android:exported="false" />
         <activity
+            android:name=".ViewController.AwaitingApprovalPage"
+            android:exported="false" />
+        <activity
             android:name=".ViewController.MainPage"
             android:exported="true">
             <intent-filter>
