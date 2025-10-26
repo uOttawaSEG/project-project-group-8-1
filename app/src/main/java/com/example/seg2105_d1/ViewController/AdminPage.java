@@ -2,6 +2,7 @@ package com.example.seg2105_d1.ViewController;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,14 +18,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.seg2105_d1.Model.User;
+import com.firebase.ui.firestore.FirestoreArray;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import com.example.seg2105_d1.R;
+import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.MemoryCacheSettings;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
 
 import java.util.Arrays;
@@ -33,8 +39,8 @@ public class AdminPage extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private FirestoreRecyclerAdapter<User, VH> adapter;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    FirebaseFirestore db;
     static class VH extends RecyclerView.ViewHolder{
         TextView tvFirstName, tvLastName, tvEmail, tvRole, tvPhoneNumber;
 
@@ -61,9 +67,16 @@ public class AdminPage extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseFirestore.getInstance().clearPersistence();
+
+        db = FirebaseFirestore.getInstance();
+
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_page);
 
@@ -77,6 +90,7 @@ public class AdminPage extends AppCompatActivity {
 
         Query query = db.collection("users")
                         .whereIn("role", Arrays.asList("STUDENT", "TUTOR"))
+                            .whereNotEqualTo("registrationStatus", "APPROVED")
                                 .orderBy("registrationStatus");
 
         FirestoreRecyclerOptions<User> options =
@@ -117,6 +131,8 @@ public class AdminPage extends AppCompatActivity {
 
         };
 
+
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -124,5 +140,31 @@ public class AdminPage extends AppCompatActivity {
         });
 
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Query query = db.collection("users")
+                .whereIn("role", Arrays.asList("STUDENT", "TUTOR"))
+                .whereNotEqualTo("registrationStatus", "APPROVED")
+                .orderBy("registrationStatus");
+
+        FirebaseFirestore.getInstance().enableNetwork();
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .get(com.google.firebase.firestore.Source.SERVER)
+                .addOnSuccessListener(snap -> {
+                    Log.d("AdminPage", "SERVER refresh");
+                    if (adapter != null) {
+                        adapter.updateOptions(new FirestoreRecyclerOptions.Builder<User>()
+                                .setQuery(query, User.class)
+                                .setLifecycleOwner(this)
+                                .build());
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("AdminPage", "SERVER refresh failed", e));
     }
 }
