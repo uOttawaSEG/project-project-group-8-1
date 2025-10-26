@@ -156,8 +156,8 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
         }else{
             Map<String, Object> data = new HashMap<>();
             data.put("role", "TUTOR");
-            data.put("firstname", newTutor.getFirstName());
-            data.put("lastname", newTutor.getLastName());
+            data.put("firstName", newTutor.getFirstName());
+            data.put("lastName", newTutor.getLastName());
             data.put("emailAddressUsername", newTutor.getEmailAddressUsername());
             data.put("accountPassword", newTutor.getAccountPassword());
             data.put("phoneNumber", newTutor.getPhoneNumber());

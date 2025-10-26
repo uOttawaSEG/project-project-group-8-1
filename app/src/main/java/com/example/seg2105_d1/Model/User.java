@@ -3,22 +3,23 @@ package com.example.seg2105_d1.Model;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
-public abstract class User {
+public class User {
     private String firstName;
     private String lastName;
     private String emailAddressUsername;
     private String accountPassword;
     private String phoneNumber;
+    private String registrationStatus;
+
+    private String role;
+
 
     /**
      * Constructor for the user
      */
+
+
     public User() {
-        this.firstName = null;
-        this.lastName = null;
-        this.emailAddressUsername = null;
-        this.accountPassword = null;
-        this.phoneNumber = null;
     }
     public User(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber){
         this.setFirstName(firstName);
@@ -26,6 +27,7 @@ public abstract class User {
         this.setEmailAddressUsername(emailAddressUsername);
         this.setAccountPassword(accountPassword);
         this.setPhoneNumber(phoneNumber);
+        this.setRegistrationStatus("pending");
     }
 
     public String getFirstName() {
@@ -105,5 +107,13 @@ public abstract class User {
             }
         }
     }
+
+    public String getRegistrationStatus(){return this.registrationStatus;}
+
+    public void setRegistrationStatus(String registrationStatus){
+        this.registrationStatus = registrationStatus;
+    }
+
+    public String getRole(){return this.role;}
 }
 
