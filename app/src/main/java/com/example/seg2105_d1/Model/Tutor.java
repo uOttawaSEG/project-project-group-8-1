@@ -35,8 +35,4 @@ public class Tutor extends User {
         coursesOffered.add(newCourse);
     }
 
-    @Override
-    public String getUserType() {
-        return "TUTOR";
-    }
 }

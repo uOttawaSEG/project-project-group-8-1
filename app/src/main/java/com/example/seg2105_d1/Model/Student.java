@@ -31,9 +31,4 @@ public class Student extends User {
             this.programOfStudy = programOfStudy;
         }
     }
-
-    @Override
-    public String getUserType() {
-        return "STUDENT";
-    }
 }
