@@ -38,24 +38,6 @@ public class LoginPage extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
 
-//        btnLogIn.setOnClickListener(v ->{
-//
-//                //Get User input
-//                String emailAddress = editTextEmailAddress.getText().toString();
-//                String password = editTextPassword.getText().toString();
-//                try {
-//                    User user = login(emailAddress, password);
-//
-//                    Intent intent = new Intent(LoginActivity.this, WelcomeScreen.class);
-//                    intent.putExtra("user_type", user.getClass().toString());
-//                }
-//                catch (IncorrectLoginException e){
-//                    errorText.setText("Incorrect email or password.");
-//                    errorText.setVisibility(View.VISIBLE);
-//                }
-//
-//        });
-
         btnLogIn.setOnClickListener(v -> loginAction());
     }
 
@@ -114,10 +96,16 @@ public class LoginPage extends AppCompatActivity {
             String registrationStatus = Objects.toString(data.get("registrationStatus"), "PENDING").toLowerCase();
             switch (registrationStatus){
                 case "approved":
-                    Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
-                    registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
-                    startActivity(registeredIntent);
-                    finish();
+                    if(Objects.toString(data.get("role")).equals("ADMIN")){
+                        Intent registeredIntent = new Intent(LoginPage.this, AdminPage.class);
+                        startActivity(registeredIntent);
+                        finish();
+                    }else {
+                        Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
+                        registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
+                        startActivity(registeredIntent);
+                        finish();
+                    }
                     break;
 
                 case "pending":

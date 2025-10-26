@@ -74,10 +74,9 @@ public class AdminPage extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerUsers);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-//        Query query = db.collection("users")
-//                        .whereIn("role", Arrays.asList("STUDENT", "TUTOR"))
-//                                .orderBy("registrationStatus");
-        Query query = db.collection("users");
+        Query query = db.collection("users")
+                        .whereIn("role", Arrays.asList("STUDENT", "TUTOR"))
+                                .orderBy("registrationStatus");
 
         FirestoreRecyclerOptions<User> options = new FirestoreRecyclerOptions.Builder<User>()
                 .setQuery(query, User.class)
@@ -101,6 +100,7 @@ public class AdminPage extends AppCompatActivity {
                     Intent intent = new Intent(AdminPage.this, WelcomePage.class);
                     intent.putExtra("EmailAddressUsername", model.getEmailAddressUsername());
                     startActivity(intent);
+                    finish();
                 });
             }
 
