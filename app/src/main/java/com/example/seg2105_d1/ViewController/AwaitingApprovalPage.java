@@ -28,7 +28,7 @@ public class AwaitingApprovalPage extends AppCompatActivity {
             statusMessage = "Your account is currently pending administrator approval. Please wait.";
         }
         else if ("rejected".equalsIgnoreCase(approvalStatus)){
-            statusMessage = "Your account has been rejected by the Administrator. Unfortunately you Do not have access to this service. If you have questions, please contact admin@otams.ca.";
+            statusMessage = "Your account has been rejected by the Administrator. Unfortunately you do not have access to this service. If you have questions, please contact the administrator with the phone number: 999-999-9999.";
         }
 
         status.setText(statusMessage);

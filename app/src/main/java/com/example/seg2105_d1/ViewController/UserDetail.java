@@ -1,6 +1,9 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.widget.TextView;
 import android.view.View;
 import android.widget.Button;
@@ -9,6 +12,8 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -28,6 +33,10 @@ public class UserDetail extends AppCompatActivity {
     public TextView tvName, tvEmail, tvNum, tvClasses;
     public Button btnApprove, btnReject;
     private String userDocId;
+
+    //user details
+    String firstName, lastName, email, phone, role;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +72,31 @@ public class UserDetail extends AppCompatActivity {
             }
         });
 
-        btnApprove.setOnClickListener(v -> updateUserStatus("APPROVED"));
-        btnReject.setOnClickListener(v -> updateUserStatus("REJECTED"));
+        //to check if device has messaging capability
+        PackageManager packageManager = getPackageManager();
+        boolean hasTelephony = packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
+        //checks if app has permission to access system messages, asks for access if not
+        if(hasTelephony) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+            }
+        }
+
+        //approval and rejection button logic
+        btnApprove.setOnClickListener(v -> {
+            updateUserStatus("APPROVED");
+            if(hasTelephony) {
+                sendRegistrationMessage(true);
+            }
+        });
+
+        btnReject.setOnClickListener(v -> {
+            updateUserStatus("REJECTED");
+            if(hasTelephony) {
+                sendRegistrationMessage(false);
+            }
+        });
+
     }
 
     private void loadUserByAccount(String emailAddressUsername) {
@@ -80,11 +112,11 @@ public class UserDetail extends AppCompatActivity {
         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
         userDocId = doc.getId();
 
-        String firstName = doc.getString("firstName");
-        String lastName = doc.getString("lastName");
-        String email = doc.getString("emailAddressUsername");
-        String phone = doc.getString("phoneNumber");
-        String role = doc.getString("role");
+        firstName = doc.getString("firstName");
+        lastName = doc.getString("lastName");
+        email = doc.getString("emailAddressUsername");
+        phone = doc.getString("phoneNumber");
+        role = doc.getString("role");
 
         String fullName = firstName + " " + lastName;
 
@@ -118,5 +150,30 @@ public class UserDetail extends AppCompatActivity {
                     finish();
                 })
                 .addOnFailureListener(e -> Toast.makeText(this, "Failed to update status", Toast.LENGTH_SHORT).show());
+    }
+
+    //method for sending SMS texts using SmsManager
+    private void sendRegistrationMessage(boolean accepted) {
+        String message;
+        if(accepted) {
+            message = "Hello " + firstName +
+                    ". Your account registration has been approved. Thank you for choosing OTAMS. " +
+                    "If you have questions, please contact the administrator with the phone number: 999-999-9999.";
+        } else {
+            message = "Hello " + firstName +
+                    ". Your account registration has been rejected by the Administrator. " +
+                    "Unfortunately you cannot access OTAMS services. " +
+                    "If you have questions, please contact the administrator with the phone number: 999-999-9999.";
+        }
+
+        //sending the text
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phone, null, message, null, null);
+            Toast.makeText(getApplicationContext(), "Text message sent to applicant.", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getApplicationContext(), "Failed to send message.", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }
