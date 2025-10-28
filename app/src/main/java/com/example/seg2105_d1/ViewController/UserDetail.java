@@ -157,13 +157,11 @@ public class UserDetail extends AppCompatActivity {
         String message;
         if(accepted) {
             message = "Hello " + firstName +
-                    ". Your account registration has been approved. Thank you for choosing OTAMS. " +
-                    "If you have questions, please contact the administrator with the phone number: 999-999-9999.";
+                    ". Your account registration has been approved. Thank you for choosing OTAMS. ";
         } else {
             message = "Hello " + firstName +
                     ". Your account registration has been rejected by the Administrator. " +
-                    "Unfortunately you cannot access OTAMS services. " +
-                    "If you have questions, please contact the administrator with the phone number: 999-999-9999.";
+                    "Unfortunately you cannot access OTAMS services. ";
         }
 
         //sending the text
