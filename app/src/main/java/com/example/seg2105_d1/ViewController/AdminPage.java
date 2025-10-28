@@ -17,7 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.seg2105_d1.Model.User;
+import com.example.seg2105_d1.Model.UserPoJo;
 import com.firebase.ui.firestore.FirestoreArray;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -38,7 +38,7 @@ import java.util.Arrays;
 public class AdminPage extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private FirestoreRecyclerAdapter<User, VH> adapter;
+    private FirestoreRecyclerAdapter<UserPoJo, VH> adapter;
 
     FirebaseFirestore db;
     static class VH extends RecyclerView.ViewHolder{
@@ -93,15 +93,15 @@ public class AdminPage extends AppCompatActivity {
                             .whereNotEqualTo("registrationStatus", "APPROVED")
                                 .orderBy("registrationStatus");
 
-        FirestoreRecyclerOptions<User> options =
-                new FirestoreRecyclerOptions.Builder<User>()
-                        .setQuery(query, User.class)
+        FirestoreRecyclerOptions<UserPoJo> options =
+                new FirestoreRecyclerOptions.Builder<UserPoJo>()
+                        .setQuery(query, UserPoJo.class)
                         .setLifecycleOwner(this)
                         .build();
 
-        adapter = new FirestoreRecyclerAdapter<User, VH>(options) {
+        adapter = new FirestoreRecyclerAdapter<UserPoJo, VH>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull VH holder, int position, @NonNull User model) {
+            protected void onBindViewHolder(@NonNull VH holder, int position, @NonNull UserPoJo model) {
 
                 holder.tvFirstName.setText(model.getFirstName());
                 holder.tvLastName.setText(model.getLastName());
@@ -159,8 +159,8 @@ public class AdminPage extends AppCompatActivity {
                 .addOnSuccessListener(snap -> {
                     Log.d("AdminPage", "SERVER refresh");
                     if (adapter != null) {
-                        adapter.updateOptions(new FirestoreRecyclerOptions.Builder<User>()
-                                .setQuery(query, User.class)
+                        adapter.updateOptions(new FirestoreRecyclerOptions.Builder<UserPoJo>()
+                                .setQuery(query, UserPoJo.class)
                                 .setLifecycleOwner(this)
                                 .build());
                     }
