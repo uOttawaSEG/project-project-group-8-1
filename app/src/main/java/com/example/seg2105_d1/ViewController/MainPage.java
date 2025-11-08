@@ -37,7 +37,6 @@ public class MainPage extends AppCompatActivity {
         if(pressID == R.id.signUpButton){
             Intent intent = new Intent(this, SignUpPage.class);
             startActivity(intent);
-            //do something
         }
     }
 }
