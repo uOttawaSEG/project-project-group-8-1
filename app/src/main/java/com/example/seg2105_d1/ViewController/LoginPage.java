@@ -96,16 +96,10 @@ public class LoginPage extends AppCompatActivity {
             String registrationStatus = Objects.toString(data.get("registrationStatus"), "PENDING").toLowerCase();
             switch (registrationStatus){
                 case "approved":
-                    if(Objects.toString(data.get("role")).equals("ADMIN")){
-                        Intent registeredIntent = new Intent(LoginPage.this, AdminPage.class);
-                        startActivity(registeredIntent);
-                        finish();
-                    }else {
-                        Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
-                        registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
-                        startActivity(registeredIntent);
-                        finish();
-                    }
+                    Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
+                    registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
+                    startActivity(registeredIntent);
+                    finish();
                     break;
 
                 case "pending":

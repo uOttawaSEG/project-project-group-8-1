@@ -3,7 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +17,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1">
+        <activity
+            android:name=".ViewController.TutorSessionViewer"
+            android:exported="false" />
+        <activity
+            android:name=".ViewController.TutorSessionCreator"
+            android:exported="false" />
         <activity
             android:name=".ViewController.UserDetail"
             android:exported="false"
