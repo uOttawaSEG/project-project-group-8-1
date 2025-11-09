@@ -1,7 +1,9 @@
 package com.example.seg2105_d1.Model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Availability {
     //instance variables ------------------------------------------------------------
@@ -10,6 +12,10 @@ public class Availability {
     private LocalDate date;
 
     private String tutorId;
+
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     //constructors ------------------------------------------------------------------
     public Availability() {
@@ -22,7 +28,7 @@ public class Availability {
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = LocalTime.parse(startTime);;
+        this.startTime = LocalTime.parse(startTime, timeFormat);;
     }
 
     public LocalTime getEndTime() {
@@ -30,7 +36,7 @@ public class Availability {
     }
 
     public void setEndTime(String endTime) {
-        this.endTime = LocalTime.parse(endTime);
+        this.endTime = LocalTime.parse(endTime, timeFormat);
     }
 
     public LocalDate getDate() {
@@ -38,7 +44,7 @@ public class Availability {
     }
 
     public void setDate(String date) {
-        this.date = LocalDate.parse(date);
+        this.date = LocalDate.parse(date, dateFormat);
     }
 
     public String getTutor() {
@@ -91,12 +97,8 @@ public class Availability {
      * @return true if date and time is after current actual date and time, false otherwise.
      */
     public boolean timingValid() {
-        if(date.isAfter(LocalDate.now()) || date.equals(LocalDate.now())) {
-            if(startTime.isAfter(LocalTime.now())) {
-                return true;
-            }
-        }
-        return false;
+        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        return startDateTime.isAfter(LocalDateTime.now());
     }
 
 }

@@ -28,10 +28,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.type.DateTime;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -48,13 +50,13 @@ public class TutorSessionCreator extends AppCompatActivity {
     private Button btnAdd;
     private ListView listAvailabilities;
 
-    private Date selectedDate;
+    private LocalDate selectedDate;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> availabilityList = new ArrayList<>();
     private ArrayList<String> availabilityIds = new ArrayList<>();
 
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
     private FirebaseFirestore db;
     private String tutorId;
@@ -72,6 +74,8 @@ public class TutorSessionCreator extends AppCompatActivity {
         checkManualApproval = findViewById(R.id.checkManualApproval);
         btnAdd = findViewById(R.id.btnAddAvailability);
         listAvailabilities = findViewById(R.id.listAvailabilities);
+
+        db = FirebaseFirestore.getInstance();
 
         // Get tutor ID (from firebase)
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
@@ -105,30 +109,28 @@ public class TutorSessionCreator extends AppCompatActivity {
 
     private void setupCalendar(){
         calendarView.setMinDate(System.currentTimeMillis()-1000);
+        selectedDate = LocalDate.now();
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
-            Calendar cal = Calendar.getInstance();
-            cal.set(year, month, dayOfMonth, 0, 0 , 0);
-            selectedDate = cal.getTime();
+            selectedDate = LocalDate.of(year, month+1, dayOfMonth);
         });
-        selectedDate = new Date();
+
     }
 
     private void setupTimeSpinners(){
         //establishing the set of times for the spinner
         List<String> times = new ArrayList<>();
-        Calendar cal = Calendar.getInstance();
-        //initial conditions
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
+        LocalTime time = LocalTime.of(0, 0);
 
         //iterate through list of times in the day and add to spinner
         for(int i =0; i<48; i++){
-            times.add(timeFormat.format(cal.getTime()));
-            cal.add(Calendar.MINUTE, 30);
+            times.add(time.format(timeFormat));
+            time = time.plusMinutes(30);
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, times);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStart.setAdapter(adapter);
+        spinnerEnd.setAdapter(adapter);
     }
 
     private void setupAddButton(){
@@ -157,14 +159,15 @@ public class TutorSessionCreator extends AppCompatActivity {
             LocalDate date = availability.getDate();
 
             List<Availability> slots = new ArrayList<>();
+
             while (startTime.isBefore(endTime)) {
                 LocalTime slotEnd = startTime.plusMinutes(30);
                 if (slotEnd.isAfter(endTime)) break;
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
-                slot.setStartTime(startTime.toString());
-                slot.setEndTime(slotEnd.toString());
+                slot.setStartTime(timeFormat.format(startTime));
+                slot.setEndTime(timeFormat.format(slotEnd));
                 slot.setTutor(availability.getTutor());
 
                 slots.add(slot);
