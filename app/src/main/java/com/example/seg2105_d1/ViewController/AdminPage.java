@@ -17,20 +17,14 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.seg2105_d1.Model.UserPoJo;
-import com.firebase.ui.firestore.FirestoreArray;
+import com.example.seg2105_d1.Mapper.UserPoJo;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
 import com.example.seg2105_d1.R;
-import com.firebase.ui.firestore.SnapshotParser;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.MemoryCacheSettings;
-import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.Query;
 
 import java.util.Arrays;
