@@ -13,6 +13,8 @@ public class Availability {
 
     private String tutorId;
 
+    private boolean used;
+
     private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -23,6 +25,8 @@ public class Availability {
     }
 
     //getters and setters -----------------------------------------------------------
+    public boolean used(){ return this.used;}
+    public void setUsed(boolean used){ this.used = used;}
     public LocalTime getStartTime() {
         return startTime;
     }
