@@ -1,4 +1,4 @@
-package com.example.seg2105_d1.Model;
+package com.example.seg2105_d1.Mapper;
 
 public class UserPoJo {
 

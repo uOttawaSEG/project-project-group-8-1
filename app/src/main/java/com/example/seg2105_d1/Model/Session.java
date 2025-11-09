@@ -29,13 +29,11 @@ public class Session {
         this.course = course;
     }
 
-    public Student getStudent() {
-        return student;
-    }
+    public String getStudentEmail() { return studentEmail; }
+    public void setStudentEmail(String studentEmail) { this.studentEmail = studentEmail; }
 
-    public void setStudent() {
-        this.student = student;
-    }
+    public String getDate() { return date; }
+    public void setDate(String date) { this.date = date; }
 
     public String getStatus() {
         return status;
