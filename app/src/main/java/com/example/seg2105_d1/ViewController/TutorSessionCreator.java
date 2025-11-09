@@ -225,28 +225,29 @@ public class TutorSessionCreator extends AppCompatActivity {
         db.collection("availabilities")
                 .whereEqualTo("tutorId", tutorId)
                 .orderBy("date", Query.Direction.ASCENDING)
-                .get()
-                .addOnSuccessListener( snap -> {
+                .addSnapshotListener((snap, error) -> {
+                    if (error != null) {
+                        Toast.makeText(this, "Error loading data.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
                     availabilityList.clear();
                     availabilityIds.clear();
 
-                    if (snap != null) {
-                        List<DocumentSnapshot> documentSnapshots = snap.getDocuments();
-                        for (DocumentSnapshot doc : documentSnapshots) {
-                            Availability availability = new Availability();
-                            availability.setDate(doc.getString("date"));
-                            availability.setStartTime(doc.getString("startTime"));
-                            availability.setEndTime(doc.getString("endTime"));
+                    if (snap != null && !snap.isEmpty()) {
+                        for (QueryDocumentSnapshot doc : snap) {
+                            String date = doc.getString("date");
+                            String start = doc.getString("startTime");
+                            String end = doc.getString("endTime");
+
+                            if (date == null || start == null || end == null) continue;
 
                             availabilityIds.add(doc.getId());
-                            String formatted = availability.getDate() + " " +
-                                    availability.getStartTime() + " - " +
-                                    availability.getEndTime();
-
+                            String formatted = date + " " + start + " - " + end;
                             availabilityList.add(formatted);
                         }
                     }
+
                     adapter.notifyDataSetChanged();
                 });
 
