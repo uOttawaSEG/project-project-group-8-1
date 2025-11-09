@@ -94,7 +94,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
     private void setupManualAvailability(){
         checkManualApproval.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            db.collection("tutors")
+            db.collection("users")
                     .document(tutorId)
                     .update("manualApproval", isChecked)
                     .addOnSuccessListener(aVoid -> {
