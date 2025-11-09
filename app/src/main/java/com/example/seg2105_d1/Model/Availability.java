@@ -9,7 +9,7 @@ public class Availability {
     private LocalTime endTime;
     private LocalDate date;
 
-    private Tutor tutor;
+    private String tutorId;
 
     //constructors ------------------------------------------------------------------
     public Availability() {
@@ -41,12 +41,12 @@ public class Availability {
         this.date = LocalDate.parse(date);
     }
 
-    public Tutor getTutor() {
-        return tutor;
+    public String getTutor() {
+        return tutorId;
     }
 
-    public void setTutor(Tutor tutor)  {
-        this.tutor = tutor;
+    public void setTutor(String tutorId)  {
+        this.tutorId = tutorId;
     }
 
     //helper methods ------------------------------------------------------------------
