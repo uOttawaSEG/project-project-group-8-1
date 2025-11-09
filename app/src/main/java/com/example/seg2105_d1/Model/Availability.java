@@ -1,87 +1,108 @@
 package com.example.seg2105_d1.Model;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 public class Availability {
+    //instance variables ------------------------------------------------------------
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private LocalDate date;
 
-    private String id;              // Firestore 文档 ID（代码中手动 set，或从 snapshot 取）
-    private String tutorEmail;
-    private String date;            // 格式: "yyyy-MM-dd"
-    private String startTime;       // 格式: "HH:mm"
-    private String endTime;         // 格式: "HH:mm"
-    private boolean manualApproval; // true = 需要手动审批, false = 自动批准
-    private boolean booked;         // true = 已被预约 (Session 占用)
+    private String tutorId;
 
+    private boolean used;
+
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    //constructors ------------------------------------------------------------------
     public Availability() {
-        // Firestore 反序列化需要
+
     }
 
-    public Availability(String tutorEmail, String date,
-                            String startTime, String endTime,
-                            boolean manualApproval) {
-        this.tutorEmail = tutorEmail;
-        this.date = date;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.manualApproval = manualApproval;
-        this.booked = false;
-    }
-
-    // ===== Getters & Setters =====
-
-    public String getId() {
-        return id;
-    }
-
-    // 注意：id 不会自动从 Firestore 带回来，需要你在读取 snapshot 时手动 set 一下（可选）
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTutorEmail() {
-        return tutorEmail;
-    }
-
-    public void setTutorEmail(String tutorEmail) {
-        this.tutorEmail = tutorEmail;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getStartTime() {
+    //getters and setters -----------------------------------------------------------
+    public boolean used(){ return this.used;}
+    public void setUsed(boolean used){ this.used = used;}
+    public LocalTime getStartTime() {
         return startTime;
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = startTime;
+        this.startTime = LocalTime.parse(startTime, timeFormat);;
     }
 
-    public String getEndTime() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
     public void setEndTime(String endTime) {
-        this.endTime = endTime;
+        this.endTime = LocalTime.parse(endTime, timeFormat);
     }
 
-    public boolean isManualApproval() {
-        return manualApproval;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setManualApproval(boolean manualApproval) {
-        this.manualApproval = manualApproval;
+    public void setDate(String date) {
+        this.date = LocalDate.parse(date, dateFormat);
     }
 
-    public boolean isBooked() {
-        return booked;
+    public String getTutor() {
+        return tutorId;
     }
 
-    public void setBooked(boolean booked) {
-        this.booked = booked;
+    public void setTutor(String tutorId)  {
+        this.tutorId = tutorId;
+    }
+
+    //helper methods ------------------------------------------------------------------
+
+    /**
+     * Checks if sessions are overlapping. Used for verification of new session creation.
+     * @param availabilityA should be an existing session
+     * @param availabilityB should be a new session to create
+     * @return true if sessions don't overlap, false otherwise
+     */
+    public static boolean noOverlap(Availability availabilityA, Availability availabilityB) {
+        LocalDate sessionADate = availabilityA.getDate();
+        LocalDate sessionBDate = availabilityB.getDate();
+        LocalTime sessionAStartTime = availabilityA.getStartTime();
+        LocalTime sessionAEndTime = availabilityA.getEndTime();
+        LocalTime sessionBStartTime = availabilityB.getStartTime();
+        LocalTime sessionBEndTime = availabilityB.getEndTime();
+
+        if(sessionADate.equals(sessionBDate)) {
+            if(sessionBStartTime.isBefore(sessionAEndTime)) {
+                return false;
+            }
+        }
+        return true;
+
+    }
+
+    /**
+     * Checks if start time is before end time. Used for authenticating a new session.
+     * @return true if start time is before end time, false otherwise.
+     */
+    public boolean timeOrderValid() {
+        if(startTime.isBefore(endTime)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks if date and time are after the current date and time.
+     * @return true if date and time is after current actual date and time, false otherwise.
+     */
+    public boolean timingValid() {
+        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        return startDateTime.isAfter(LocalDateTime.now());
     }
 
 }

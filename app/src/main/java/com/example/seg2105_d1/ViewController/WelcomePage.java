@@ -95,6 +95,7 @@ public class WelcomePage extends AppCompatActivity {
                 //send to TutorSessionCreator if button selected
                 createSession.setOnClickListener(v -> {
                     Intent tmpIntent = new Intent(WelcomePage.this, TutorSessionCreator.class);
+
                     startActivity(tmpIntent);
                 });
 
