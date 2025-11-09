@@ -63,25 +63,23 @@ public class Availability {
 
     /**
      * Checks if sessions are overlapping. Used for verification of new session creation.
-     * @param availabilityA should be an existing session
-     * @param availabilityB should be a new session to create
-     * @return true if sessions don't overlap, false otherwise
+     * @param sessionADate Session A date.
+     * @param sessionBDate Session B date.
+     * @param sessionAStartTime Session A start time.
+     * @param sessionAEndTime Session A end time.
+     * @param sessionBStartTime Session B start time.
+     * @param sessionBEndTime Session B end time.
+     * @return true if sessions overlap, false otherwise
      */
-    public static boolean noOverlap(Availability availabilityA, Availability availabilityB) {
-        LocalDate sessionADate = availabilityA.getDate();
-        LocalDate sessionBDate = availabilityB.getDate();
-        LocalTime sessionAStartTime = availabilityA.getStartTime();
-        LocalTime sessionAEndTime = availabilityA.getEndTime();
-        LocalTime sessionBStartTime = availabilityB.getStartTime();
-        LocalTime sessionBEndTime = availabilityB.getEndTime();
-
-        if(sessionADate.equals(sessionBDate)) {
-            if(sessionBStartTime.isBefore(sessionAEndTime)) {
-                return false;
-            }
+    public static boolean Overlap(LocalDate sessionADate, LocalDate sessionBDate, LocalTime sessionAStartTime, LocalTime sessionAEndTime, LocalTime sessionBStartTime, LocalTime sessionBEndTime) {
+        //different dates so no overlap
+        if (!sessionADate.equals(sessionBDate)) {
+            return true;
         }
-        return true;
 
+        //Overlap exists if:
+        //sessionAStartTime <= sessionBEndTime AND sessionAEndTime >= sessionBStartTime
+        return (!sessionAEndTime.isBefore(sessionBStartTime) && !sessionAStartTime.isAfter(sessionBEndTime));
     }
 
     /**
