@@ -74,12 +74,12 @@ public class Availability {
     public static boolean Overlap(LocalDate sessionADate, LocalDate sessionBDate, LocalTime sessionAStartTime, LocalTime sessionAEndTime, LocalTime sessionBStartTime, LocalTime sessionBEndTime) {
         //different dates so no overlap
         if (!sessionADate.equals(sessionBDate)) {
-            return true;
+            return false;
         }
 
         //Overlap exists if:
-        //sessionAStartTime <= sessionBEndTime AND sessionAEndTime >= sessionBStartTime
-        return (!sessionAEndTime.isBefore(sessionBStartTime) && !sessionAStartTime.isAfter(sessionBEndTime));
+        //sessionAStartTime < sessionBEndTime AND sessionAEndTime > sessionBStartTime
+        return (sessionAStartTime.isBefore(sessionBEndTime) && sessionAEndTime.isAfter(sessionBStartTime));
     }
 
     /**
