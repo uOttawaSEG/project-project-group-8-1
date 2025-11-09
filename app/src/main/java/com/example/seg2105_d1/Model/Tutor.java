@@ -6,11 +6,13 @@ public class Tutor extends User {
 
     private String highestDegree;
     private ArrayList<String> coursesOffered;
+    private boolean manualApproval;
 
     public Tutor() {
         super();
         this.highestDegree = null;
         this.coursesOffered = new ArrayList<String>();
+        this.manualApproval = false;
     }
 
     public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered, String registrationStatus) {

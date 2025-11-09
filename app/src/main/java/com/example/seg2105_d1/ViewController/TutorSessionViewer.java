@@ -1,8 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,31 +10,17 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.seg2105_d1.R;
 
-public class MainPage extends AppCompatActivity {
+public class TutorSessionViewer extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_tutor_session_viewer);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-    }
-
-    public void buttonClick(View view) {
-
-        int pressID = view.getId();
-
-        if(pressID == R.id.signInButton){
-            Intent intent = new Intent(this, LoginPage.class);
-            startActivity(intent);
-        }
-        if(pressID == R.id.signUpButton){
-            Intent intent = new Intent(this, SignUpPage.class);
-            startActivity(intent);
-        }
     }
 }
