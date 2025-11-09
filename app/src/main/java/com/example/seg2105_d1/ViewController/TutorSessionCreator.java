@@ -190,10 +190,12 @@ public class TutorSessionCreator extends AppCompatActivity {
             batch.commit()
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Availability added (" + slots.size() + " slots).", Toast.LENGTH_SHORT).show();
+                        loadAvailabilities();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(this, "Error saving availability.", Toast.LENGTH_SHORT).show();
                     });
+
         });
 
     }
@@ -211,6 +213,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                                 .delete()
                                 .addOnSuccessListener(aVoid ->{
                                     Toast.makeText(this, "Slot Deleted.", Toast.LENGTH_SHORT).show();
+                                    loadAvailabilities();
                                 })
                                 .addOnFailureListener(e ->{
                                     Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
