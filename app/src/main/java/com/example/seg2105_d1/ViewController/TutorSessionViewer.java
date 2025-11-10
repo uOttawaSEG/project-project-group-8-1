@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,9 @@ import com.google.firebase.firestore.Query;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +43,7 @@ public class TutorSessionViewer extends AppCompatActivity {
     }
 
     private FirebaseFirestore db;
-    private String tutorEmail;
+    private String tutorId;
 
     private Button btnPending, btnUpcoming, btnPast;
     private RecyclerView recyclerViewSessions;
@@ -49,7 +53,9 @@ public class TutorSessionViewer extends AppCompatActivity {
 
     private Mode currentMode = Mode.PENDING;
 
-    private final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +69,9 @@ public class TutorSessionViewer extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        tutorEmail = getIntent().getStringExtra("tutorEmail");//change it later!!!!!!!
+
+        SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
+        tutorId = preferences.getString("userID", null);
 
         btnPending = findViewById(R.id.btnPending);
         btnUpcoming = findViewById(R.id.btnUpcoming);
@@ -74,8 +82,8 @@ public class TutorSessionViewer extends AppCompatActivity {
         adapter = new SessionAdapter(sessionList);
         recyclerViewSessions.setAdapter(adapter);
 
-        if(tutorEmail == null || tutorEmail.isEmpty()){
-            Toast.makeText(this, "Missing tutor email.", Toast.LENGTH_LONG).show();
+        if(tutorId == null || tutorId.isEmpty()){
+            Toast.makeText(this, "Missing tutor id.", Toast.LENGTH_LONG).show();
         }
 
         btnPending.setOnClickListener(v -> {
@@ -83,13 +91,13 @@ public class TutorSessionViewer extends AppCompatActivity {
             loadSessionsFromDatabase();
         });
 
-        btnPending.setOnClickListener(v -> {
-            currentMode = Mode.PENDING;
+        btnUpcoming.setOnClickListener(v -> {
+            currentMode = Mode.UPCOMING;
             loadSessionsFromDatabase();
         });
 
-        btnPending.setOnClickListener(v -> {
-            currentMode = Mode.PENDING;
+        btnPast.setOnClickListener(v -> {
+            currentMode = Mode.PAST;
             loadSessionsFromDatabase();
         });
 
@@ -99,16 +107,16 @@ public class TutorSessionViewer extends AppCompatActivity {
 
     private void loadSessionsFromDatabase(){
 
-        if (tutorEmail == null || tutorEmail.isEmpty()) {
+        if (tutorId == null || tutorId.isEmpty()) {
             return;
         }
 
-        Query query = db.collection("sessions").whereEqualTo("totorEmail", tutorEmail);
+        Query query = db.collection("sessions").whereEqualTo("tutorId", tutorId);
 
         query.get().addOnSuccessListener(snapshot -> {
 
             sessionList.clear();
-            Date now = new Date();
+            LocalDate now = LocalDate.now();
 
             for(DocumentSnapshot document : snapshot.getDocuments()){
                 Session session = document.toObject(Session.class);
@@ -151,11 +159,17 @@ public class TutorSessionViewer extends AppCompatActivity {
 
     }
 
-    private boolean isInTheFuture(Session s, Date now) {
+    private boolean isInTheFuture(Session s, LocalDate now) {
         try {
-            Date when = dateTimeFormat.parse(s.getDate() + " " + s.getStartTime());//make sure the format is the same using
-            return when != null && when.after(now);
-        } catch (ParseException e) {
+            LocalDate sessionDate = s.getDate();
+            if (sessionDate.isAfter(now)) {
+                return true;
+            } else if (sessionDate.isEqual(now)) {
+                return s.getStartTime().isAfter(LocalTime.now());
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
             return false;
         }
     }
@@ -223,10 +237,24 @@ public class TutorSessionViewer extends AppCompatActivity {
         public void onBindViewHolder(@NonNull SessionViewHolder holder, int position) {
             Session session = data.get(position);
 
-            String message = session.getDate() + " " + session.getStartTime() + " " + session.getEndTime();
-            holder.tvInfo.setText(message);
+            String dateStr = "";
+            String startStr = "";
+            String endStr = "";
 
-            holder.tvStudent.setText("Student Email: " + session.getStudentEmail());
+            if (session.getDate() != null) {
+                dateStr = session.getDate().format(dateFormat); // yyyy-MM-dd
+            }
+            if (session.getStartTime() != null) {
+                startStr = session.getStartTime().format(timeFormat); // hh:mm a
+            }
+            if (session.getEndTime() != null) {
+                endStr = session.getEndTime().format(timeFormat); // hh:mm a
+            }
+
+            String message = dateStr + "  " + startStr + " - " + endStr;
+            holder.tvInfo.setText(message.trim());
+
+            holder.tvStudent.setText("Student: " + session.getStudentEmail());
             holder.tvStatus.setText("Status: " + session.getStatus());
 
             holder.btnApprove.setVisibility(View.GONE);
