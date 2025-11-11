@@ -305,7 +305,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                                 String formatted = currentDate + " " + currentStart + " - " + currentEnd;
                                 availabilityList.add(formatted);
                                 //adds the list of slots that is within the merged slot
-                                availabilityIds.add(currentIds);
+                                availabilityIds.add(new ArrayList<>(currentIds));
 
                                 //resets variables
                                 currentDate = date;
@@ -322,7 +322,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                             String formatted = currentDate + " " + currentStart + " - " + currentEnd;
                             availabilityList.add(formatted);
                             //adds the list of slots that is within the merged slot
-                            availabilityIds.add(currentIds);
+                            availabilityIds.add(new ArrayList<>(currentIds));
                         }
                     }
 
