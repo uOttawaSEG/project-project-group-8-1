@@ -1,5 +1,7 @@
 package com.example.seg2105_d1.ViewController;
 
+import static android.view.View.VISIBLE;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -30,12 +32,12 @@ public class UserDetail extends AppCompatActivity {
 
     public FirebaseFirestore db;
 
-    public TextView tvName, tvEmail, tvNum, tvClasses;
+    public TextView tvName, tvEmail, tvNum, tvClasses, tvProgramOfStudy;
     public Button btnApprove, btnReject;
     private String userDocId;
 
     //user details
-    String firstName, lastName, email, phone, role;
+    String firstName, lastName, email, phone, programOfStudy, role;
 
 
     @Override
@@ -56,6 +58,7 @@ public class UserDetail extends AppCompatActivity {
         tvEmail = findViewById(R.id.tvUserDetailEmail);
         tvNum = findViewById(R.id.tvUserDetailNum);
         tvClasses = findViewById(R.id.tvUserDetailClasses);
+        tvProgramOfStudy = findViewById(R.id.tvUserDetailProgramOfStudy);
 
         btnApprove = findViewById(R.id.btnApprove);
         btnReject = findViewById(R.id.btnReject);
@@ -124,11 +127,17 @@ public class UserDetail extends AppCompatActivity {
         tvEmail.setText(email);
         tvNum.setText(phone);
 
+        if("STUDENT".equalsIgnoreCase(role)){
+            programOfStudy = doc.getString("programOfStudy");
+            tvProgramOfStudy.setText("Program of Study: "+programOfStudy);
+            tvProgramOfStudy.setVisibility(VISIBLE);
+        }
+
         //only show courses when tutor
         if ("TUTOR".equalsIgnoreCase(role)) {
             List<String> courses = (List<String>) doc.get("courseOffered");
             if (courses != null && !courses.isEmpty()) {
-                tvClasses.setVisibility(View.VISIBLE);
+                tvClasses.setVisibility(VISIBLE);
                 tvClasses.setText("Courses: " + String.join(", ", courses));
             }
         } else {
