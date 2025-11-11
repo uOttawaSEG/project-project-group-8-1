@@ -284,7 +284,9 @@ public class TutorSessionViewer extends AppCompatActivity {
                     updateStatusAndRefresh(session, "REJECTED", true);
                 });
 
-                holder.itemView.setOnClickListener(null);
+                holder.itemView.setOnClickListener(v -> {
+                    openStudentDetail(session.getStudentEmail());
+                });
             }else if(currentMode == Mode.UPCOMING){
 
                 if(!Objects.equals(session.getStatus(), "CANCELLED")) {
