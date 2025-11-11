@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -218,6 +219,16 @@ public class TutorSessionViewer extends AppCompatActivity {
 
     }
 
+    private void openStudentDetail(String studentEmail){
+        if (studentEmail == null || studentEmail.isEmpty()) {
+            Toast.makeText(this, "No student email for this session.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(TutorSessionViewer.this, StudentInfo.class);
+        intent.putExtra("studentEmail", studentEmail);
+        startActivity(intent);
+    }
+
     private class SessionAdapter extends RecyclerView.Adapter<SessionViewHolder>{
 
         private final List<Session> data;
@@ -272,6 +283,8 @@ public class TutorSessionViewer extends AppCompatActivity {
                 holder.btnReject.setOnClickListener(v -> {
                     updateStatusAndRefresh(session, "REJECTED", true);
                 });
+
+                holder.itemView.setOnClickListener(null);
             }else if(currentMode == Mode.UPCOMING){
 
                 if(!Objects.equals(session.getStatus(), "CANCELLED")) {
@@ -281,6 +294,12 @@ public class TutorSessionViewer extends AppCompatActivity {
                 holder.btnCancel.setOnClickListener(v -> {
                     updateStatusAndRefresh(session, "CANCELLED", true);
                 });
+
+                holder.itemView.setOnClickListener(v -> {
+                    openStudentDetail(session.getStudentEmail());
+                });
+            }else{
+                holder.itemView.setOnClickListener(null);
             }
         }
 

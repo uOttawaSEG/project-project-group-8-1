@@ -8,7 +8,6 @@
     android:background="#F7F9FC"
     tools:context=".ViewController.TutorSessionViewer">
 
-    <!-- 顶部标题栏 -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -22,7 +21,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tab 按钮区 -->
     <LinearLayout
         android:id="@+id/layoutTabs"
         android:layout_width="0dp"
@@ -71,7 +69,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- 分隔线 -->
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -82,7 +79,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView 显示 Session 列表 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSessions"
         android:layout_width="0dp"

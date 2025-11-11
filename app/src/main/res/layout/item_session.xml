@@ -17,7 +17,6 @@
         android:orientation="vertical"
         android:padding="10dp">
 
-        <!-- 日期 + 时间段 -->
         <TextView
             android:id="@+id/tvSessionInfo"
             android:layout_width="match_parent"
@@ -29,7 +28,6 @@
             android:ellipsize="end"
             android:singleLine="true" />
 
-        <!-- 学生信息（独立一行，支持长邮箱） -->
         <TextView
             android:id="@+id/tvSessionStudent"
             android:layout_width="match_parent"
@@ -41,7 +39,6 @@
             android:maxLines="1"
             android:layout_marginTop="2dp" />
 
-        <!-- 状态信息（单独一行） -->
         <TextView
             android:id="@+id/tvSessionStatus"
             android:layout_width="match_parent"
@@ -53,7 +50,6 @@
             android:singleLine="true"
             android:layout_marginTop="2dp" />
 
-        <!-- 按钮行（右侧，小尺寸） -->
         <LinearLayout
             android:id="@+id/layoutButtons"
             android:layout_width="match_parent"
