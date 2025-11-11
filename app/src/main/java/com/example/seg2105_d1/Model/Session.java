@@ -10,7 +10,7 @@ public class Session {
     String id;
     List<String> availabilitySlotIds;
     String course;
-    String  studentEmail;
+    String studentEmail;
     String status;
 
     String tutorId;

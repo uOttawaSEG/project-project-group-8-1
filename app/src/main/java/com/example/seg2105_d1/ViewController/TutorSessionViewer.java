@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class TutorSessionViewer extends AppCompatActivity {
 
@@ -253,7 +254,7 @@ public class TutorSessionViewer extends AppCompatActivity {
             String message = dateStr + "  " + startStr + " - " + endStr;
             holder.tvInfo.setText(message.trim());
 
-            holder.tvStudent.setText("Student: " + session.getStudentEmail());
+            holder.tvStudent.setText("Student Email: " + session.getStudentEmail());
             holder.tvStatus.setText("Status: " + session.getStatus());
 
             holder.btnApprove.setVisibility(View.GONE);
@@ -272,7 +273,10 @@ public class TutorSessionViewer extends AppCompatActivity {
                     updateStatusAndRefresh(session, "REJECTED", true);
                 });
             }else if(currentMode == Mode.UPCOMING){
-                holder.btnCancel.setVisibility(View.VISIBLE);
+
+                if(!Objects.equals(session.getStatus(), "CANCELLED")) {
+                    holder.btnCancel.setVisibility(View.VISIBLE);
+                }
 
                 holder.btnCancel.setOnClickListener(v -> {
                     updateStatusAndRefresh(session, "CANCELLED", true);
