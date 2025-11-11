@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.type.DateTime;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -53,7 +54,7 @@ public class TutorSessionCreator extends AppCompatActivity {
     private LocalDate selectedDate;
     private ArrayAdapter<String> adapter;
     private ArrayList<String> availabilityList = new ArrayList<>();
-    private ArrayList<String> availabilityIds = new ArrayList<>();
+    private ArrayList<ArrayList<String>> availabilityIds = new ArrayList<>();
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
@@ -162,7 +163,6 @@ public class TutorSessionCreator extends AppCompatActivity {
 
             while (startTime.isBefore(endTime)) {
                 LocalTime slotEnd = startTime.plusMinutes(30);
-                if (slotEnd.isAfter(endTime)) break;
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
@@ -174,46 +174,68 @@ public class TutorSessionCreator extends AppCompatActivity {
                 startTime = slotEnd;
             }
 
-            // Push all slots to Firestore
-            WriteBatch batch = db.batch();
+            db.collection("availabilities")
+                    .whereEqualTo("tutorId", tutorId)
+                    .orderBy("date", Query.Direction.ASCENDING)
+                    .orderBy("startTime", Query.Direction.ASCENDING)
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        if (snap != null && !snap.isEmpty()) {
+                            for (QueryDocumentSnapshot doc : snap) {
+                                LocalDate tmpDate = LocalDate.parse(doc.getString("date"));
+                                LocalTime tmpStart = LocalTime.parse(doc.getString("startTime"));
+                                LocalTime tmpEnd = LocalTime.parse(doc.getString("endTime"));
 
-            for (Availability slot : slots) {
-                DocumentReference docRef = db.collection("availabilities").document();
-                Map<String, Object> data = new HashMap<>();
-                data.put("date", slot.getDate().toString());
-                data.put("startTime", slot.getStartTime().toString());
-                data.put("endTime", slot.getEndTime().toString());
-                data.put("tutorId", tutorId);
-                batch.set(docRef, data);
-            }
+                                if (date == null || start == null || end == null) continue;
 
-            batch.commit()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Availability added (" + slots.size() + " slots).", Toast.LENGTH_SHORT).show();
-                        loadAvailabilities();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error saving availability.", Toast.LENGTH_SHORT).show();
+                                if(Availability.Overlap(date, tmpDate, availability.getStartTime(), endTime, tmpStart, tmpEnd)) {
+                                    Toast.makeText(this, "Overlapping availability.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+                        }
+                        // Push all slots to Firestore
+                        WriteBatch batch = db.batch();
+
+                        for (Availability slot : slots) {
+                            DocumentReference docRef = db.collection("availabilities").document();
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("date", slot.getDate().toString());
+                            data.put("startTime", slot.getStartTime().toString());
+                            data.put("endTime", slot.getEndTime().toString());
+                            data.put("tutorId", tutorId);
+                            batch.set(docRef, data);
+                        }
+
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(this, "Availability added (" + slots.size() + " slots).", Toast.LENGTH_SHORT).show();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Error saving availability.", Toast.LENGTH_SHORT).show();
+                                });
+
                     });
-
         });
-
     }
 
     private void setupListClick(){
         listAvailabilities.setOnItemClickListener(((parent, view, position, id) -> {
-            String availabilityID = availabilityIds.get(position);
+            ArrayList<String> availabilityID = availabilityIds.get(position);
 
             new AlertDialog.Builder(this)
                     .setTitle("Delete Availability")
-                    .setMessage("Are you sure you want to delete this 30-minute slot?")
+                    .setMessage("Are you sure you want to delete this slot?")
                     .setPositiveButton("Delete", (dialog, which) ->{
-                        db.collection("availabilities")
-                                .document(availabilityID)
-                                .delete()
+                        WriteBatch batch = db.batch();
+
+                        for (String slotId : availabilityID) {
+                            batch.delete(db.collection("availabilities").document(slotId));
+                        }
+
+                        batch.commit()
                                 .addOnSuccessListener(aVoid ->{
-                                    Toast.makeText(this, "Slot Deleted.", Toast.LENGTH_SHORT).show();
-                                    loadAvailabilities();
+                                    Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e ->{
                                     Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
@@ -228,6 +250,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         db.collection("availabilities")
                 .whereEqualTo("tutorId", tutorId)
                 .orderBy("date", Query.Direction.ASCENDING)
+                .orderBy("startTime", Query.Direction.ASCENDING)
                 .addSnapshotListener((snap, error) -> {
                     if (error != null) {
                         Toast.makeText(this, "Error loading data.", Toast.LENGTH_SHORT).show();
@@ -238,6 +261,12 @@ public class TutorSessionCreator extends AppCompatActivity {
                     availabilityIds.clear();
 
                     if (snap != null && !snap.isEmpty()) {
+                        //instantiates helper variables for merging
+                        String currentDate = null;
+                        String currentStart = null;
+                        String currentEnd = null;
+                        ArrayList<String> currentIds = new ArrayList<>();
+
                         for (QueryDocumentSnapshot doc : snap) {
                             String date = doc.getString("date");
                             String start = doc.getString("startTime");
@@ -245,9 +274,40 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                             if (date == null || start == null || end == null) continue;
 
-                            availabilityIds.add(doc.getId());
-                            String formatted = date + " " + start + " - " + end;
+                            if (currentDate == null) {
+                                currentDate = date;
+                                currentStart = start;
+                                currentEnd = end;
+                                //adds slots to currentIds
+                                currentIds.add(doc.getId());
+                            } else if (currentDate.equals(date) && currentEnd.equals(start)) {
+                                //merge continuous slots
+                                currentEnd = end;
+                                //adds slots to currentIds
+                                currentIds.add(doc.getId());
+                            } else {
+                                //adds merged slot to the list
+                                String formatted = currentDate + " " + currentStart + " - " + currentEnd;
+                                availabilityList.add(formatted);
+                                //adds the list of slots that is within the merged slot
+                                availabilityIds.add(currentIds);
+
+                                //resets variables
+                                currentDate = date;
+                                currentStart = start;
+                                currentEnd = end;
+                                currentIds.clear();
+                                currentIds.add(doc.getId());
+                            }
+                        }
+
+                        //adds last merged item (if non-empty)
+                        if (currentDate != null) {
+                            //adds merged slot to the list
+                            String formatted = currentDate + " " + currentStart + " - " + currentEnd;
                             availabilityList.add(formatted);
+                            //adds the list of slots that is within the merged slot
+                            availabilityIds.add(currentIds);
                         }
                     }
 
