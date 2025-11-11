@@ -3,6 +3,7 @@ package com.example.seg2105_d1.ViewController;
 import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -61,6 +62,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String tutorId;
+    private boolean manualApproval;
 
 
     @Override
@@ -94,6 +96,19 @@ public class TutorSessionCreator extends AppCompatActivity {
     }
 
     private void setupManualAvailability(){
+        db.collection("users").document(tutorId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Get a field value by key
+                        manualApproval = Boolean.TRUE.equals(documentSnapshot.get("manualApproval"));
+                        checkManualApproval.setChecked(manualApproval);
+                        Log.d("Firestore", "Manual Approval: " + manualApproval);
+                    } else {
+                        Log.d("Firestore", "No such document");
+                    }
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "Error getting document", e));
         checkManualApproval.setOnCheckedChangeListener((buttonView, isChecked) -> {
             db.collection("users")
                     .document(tutorId)
