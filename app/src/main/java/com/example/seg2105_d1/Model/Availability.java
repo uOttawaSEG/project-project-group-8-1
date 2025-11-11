@@ -14,6 +14,7 @@ public class Availability {
     private String tutorId;
 
     private boolean used;
+    private boolean manualApproval;
 
     private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
@@ -27,6 +28,8 @@ public class Availability {
     //getters and setters -----------------------------------------------------------
     public boolean used(){ return this.used;}
     public void setUsed(boolean used){ this.used = used;}
+    public boolean getManualApproval(){ return this.manualApproval;}
+    public void setManualApproval(boolean manualApproval){ this.manualApproval = manualApproval;}
     public LocalTime getStartTime() {
         return startTime;
     }

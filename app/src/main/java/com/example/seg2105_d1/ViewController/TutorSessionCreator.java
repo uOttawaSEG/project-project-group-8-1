@@ -2,7 +2,10 @@ package com.example.seg2105_d1.ViewController;
 
 import android.app.AlertDialog;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -52,8 +55,8 @@ public class TutorSessionCreator extends AppCompatActivity {
     private ListView listAvailabilities;
 
     private LocalDate selectedDate;
-    private ArrayAdapter<String> adapter;
-    private ArrayList<String> availabilityList = new ArrayList<>();
+    private ArrayAdapter<CharSequence> adapter;
+    private ArrayList<CharSequence> availabilityList = new ArrayList<>();
     private ArrayList<ArrayList<String>> availabilityIds = new ArrayList<>();
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -89,23 +92,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         setupCalendar();
         setupAddButton();
         setupListClick();
-        setupManualAvailability();
         loadAvailabilities();
-    }
-
-    private void setupManualAvailability(){
-        checkManualApproval.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            db.collection("users")
-                    .document(tutorId)
-                    .update("manualApproval", isChecked)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Manual approval updated.", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Error updating manual approval.", Toast.LENGTH_SHORT).show();
-                    });
-        });
-
     }
 
     private void setupCalendar(){
@@ -144,6 +131,7 @@ public class TutorSessionCreator extends AppCompatActivity {
             availability.setStartTime(start);
             availability.setEndTime(end);
             availability.setTutor(tutorId);
+            availability.setManualApproval(checkManualApproval.isChecked());
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
@@ -169,6 +157,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                 slot.setStartTime(timeFormat.format(startTime));
                 slot.setEndTime(timeFormat.format(slotEnd));
                 slot.setTutor(availability.getTutor());
+                slot.setManualApproval(availability.getManualApproval());
 
                 slots.add(slot);
                 startTime = slotEnd;
@@ -204,12 +193,14 @@ public class TutorSessionCreator extends AppCompatActivity {
                             data.put("startTime", slot.getStartTime().toString());
                             data.put("endTime", slot.getEndTime().toString());
                             data.put("tutorId", tutorId);
+                            data.put("manualApproval", slot.getManualApproval());
                             batch.set(docRef, data);
                         }
 
                         batch.commit()
                                 .addOnSuccessListener(aVoid -> {
                                     Toast.makeText(this, "Availability added (" + slots.size() + " slots).", Toast.LENGTH_SHORT).show();
+                                    loadAvailabilities(); //redundant call for safety
                                 })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(this, "Error saving availability.", Toast.LENGTH_SHORT).show();
@@ -236,6 +227,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                         batch.commit()
                                 .addOnSuccessListener(aVoid ->{
                                     Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
+                                    loadAvailabilities(); //redundant call for safety
                                 })
                                 .addOnFailureListener(e ->{
                                     Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
@@ -265,6 +257,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                         String currentDate = null;
                         String currentStart = null;
                         String currentEnd = null;
+                        Boolean previousApproval = false;
                         ArrayList<String> currentIds = new ArrayList<>();
 
                         for (QueryDocumentSnapshot doc : snap) {
@@ -280,17 +273,13 @@ public class TutorSessionCreator extends AppCompatActivity {
                                 currentEnd = end;
                                 //adds slots to currentIds
                                 currentIds.add(doc.getId());
-                            } else if (currentDate.equals(date) && currentEnd.equals(start)) {
+                            } else if (currentDate.equals(date) && currentEnd.equals(start) && doc.getBoolean("manualApproval") == previousApproval) {
                                 //merge continuous slots
                                 currentEnd = end;
                                 //adds slots to currentIds
                                 currentIds.add(doc.getId());
                             } else {
-                                //adds merged slot to the list
-                                String formatted = currentDate + " " + currentStart + " - " + currentEnd;
-                                availabilityList.add(formatted);
-                                //adds the list of slots that is within the merged slot
-                                availabilityIds.add(currentIds);
+                                addFormattedListItem(currentDate, currentStart, currentEnd, previousApproval, currentIds);
 
                                 //resets variables
                                 currentDate = date;
@@ -299,21 +288,36 @@ public class TutorSessionCreator extends AppCompatActivity {
                                 currentIds.clear();
                                 currentIds.add(doc.getId());
                             }
+                            previousApproval = doc.getBoolean("manualApproval");
                         }
 
                         //adds last merged item (if non-empty)
-                        if (currentDate != null) {
-                            //adds merged slot to the list
-                            String formatted = currentDate + " " + currentStart + " - " + currentEnd;
-                            availabilityList.add(formatted);
-                            //adds the list of slots that is within the merged slot
-                            availabilityIds.add(currentIds);
+                        if(currentDate != null) {
+                            addFormattedListItem(currentDate, currentStart, currentEnd, previousApproval, currentIds);
                         }
+
                     }
 
                     adapter.notifyDataSetChanged();
                 });
 
+    }
+
+    private void addFormattedListItem(String date, String start, String end, Boolean approval, ArrayList<String> ids){
+        String formattedText = date + " " + start + " - " + end + "    Approval: ";
+        //null safety check
+        if(approval != null) {
+            //formats color for manual approval boolean
+            String statusText = approval ? "Auto" : "Manual";
+            SpannableString spannable = new SpannableString(formattedText + statusText);
+            int color = approval ? Color.parseColor("#4CAF50") : Color.parseColor("#F44336");
+            spannable.setSpan(new ForegroundColorSpan(color), formattedText.length(), spannable.length(), 0);
+
+            //adds merged slot to the list
+            availabilityList.add(spannable);
+            //adds the list of slots that is within the merged slot
+            availabilityIds.add(ids);
+        }
     }
 
 
