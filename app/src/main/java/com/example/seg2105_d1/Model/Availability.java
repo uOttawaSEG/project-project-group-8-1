@@ -1,7 +1,9 @@
 package com.example.seg2105_d1.Model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class Availability {
     //instance variables ------------------------------------------------------------
@@ -9,7 +11,13 @@ public class Availability {
     private LocalTime endTime;
     private LocalDate date;
 
-    private Tutor tutor;
+    private String tutorId;
+
+    private boolean used;
+
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     //constructors ------------------------------------------------------------------
     public Availability() {
@@ -17,12 +25,14 @@ public class Availability {
     }
 
     //getters and setters -----------------------------------------------------------
+    public boolean used(){ return this.used;}
+    public void setUsed(boolean used){ this.used = used;}
     public LocalTime getStartTime() {
         return startTime;
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = LocalTime.parse(startTime);;
+        this.startTime = LocalTime.parse(startTime, timeFormat);;
     }
 
     public LocalTime getEndTime() {
@@ -30,7 +40,7 @@ public class Availability {
     }
 
     public void setEndTime(String endTime) {
-        this.endTime = LocalTime.parse(endTime);
+        this.endTime = LocalTime.parse(endTime, timeFormat);
     }
 
     public LocalDate getDate() {
@@ -38,40 +48,38 @@ public class Availability {
     }
 
     public void setDate(String date) {
-        this.date = LocalDate.parse(date);
+        this.date = LocalDate.parse(date, dateFormat);
     }
 
-    public Tutor getTutor() {
-        return tutor;
+    public String getTutor() {
+        return tutorId;
     }
 
-    public void setTutor(Tutor tutor)  {
-        this.tutor = tutor;
+    public void setTutor(String tutorId)  {
+        this.tutorId = tutorId;
     }
 
     //helper methods ------------------------------------------------------------------
 
     /**
      * Checks if sessions are overlapping. Used for verification of new session creation.
-     * @param availabilityA should be an existing session
-     * @param availabilityB should be a new session to create
-     * @return true if sessions don't overlap, false otherwise
+     * @param sessionADate Session A date.
+     * @param sessionBDate Session B date.
+     * @param sessionAStartTime Session A start time.
+     * @param sessionAEndTime Session A end time.
+     * @param sessionBStartTime Session B start time.
+     * @param sessionBEndTime Session B end time.
+     * @return true if sessions overlap, false otherwise
      */
-    public static boolean noOverlap(Availability availabilityA, Availability availabilityB) {
-        LocalDate sessionADate = availabilityA.getDate();
-        LocalDate sessionBDate = availabilityB.getDate();
-        LocalTime sessionAStartTime = availabilityA.getStartTime();
-        LocalTime sessionAEndTime = availabilityA.getEndTime();
-        LocalTime sessionBStartTime = availabilityB.getStartTime();
-        LocalTime sessionBEndTime = availabilityB.getEndTime();
-
-        if(sessionADate.equals(sessionBDate)) {
-            if(sessionBStartTime.isBefore(sessionAEndTime)) {
-                return false;
-            }
+    public static boolean Overlap(LocalDate sessionADate, LocalDate sessionBDate, LocalTime sessionAStartTime, LocalTime sessionAEndTime, LocalTime sessionBStartTime, LocalTime sessionBEndTime) {
+        //different dates so no overlap
+        if (!sessionADate.equals(sessionBDate)) {
+            return false;
         }
-        return true;
 
+        //Overlap exists if:
+        //sessionAStartTime < sessionBEndTime AND sessionAEndTime > sessionBStartTime
+        return (sessionAStartTime.isBefore(sessionBEndTime) && sessionAEndTime.isAfter(sessionBStartTime));
     }
 
     /**
@@ -91,12 +99,8 @@ public class Availability {
      * @return true if date and time is after current actual date and time, false otherwise.
      */
     public boolean timingValid() {
-        if(date.isAfter(LocalDate.now()) || date.equals(LocalDate.now())) {
-            if(startTime.isAfter(LocalTime.now())) {
-                return true;
-            }
-        }
-        return false;
+        LocalDateTime startDateTime = LocalDateTime.of(date, startTime);
+        return startDateTime.isAfter(LocalDateTime.now());
     }
 
 }

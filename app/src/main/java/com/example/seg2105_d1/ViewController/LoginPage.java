@@ -1,6 +1,7 @@
 package com.example.seg2105_d1.ViewController;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -98,6 +99,9 @@ public class LoginPage extends AppCompatActivity {
                 case "approved":
                     Intent registeredIntent = new Intent(LoginPage.this, WelcomePage.class);
                     registeredIntent.putExtra("user_type", Objects.toString(data.get("role"), "UNKNOWN"));
+                    SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
+                    preferences.edit().putString("userID", document.getId()).apply();
+                    preferences.edit().putString("userRole", Objects.toString(data.get("role"))).apply();
                     startActivity(registeredIntent);
                     finish();
                     break;
