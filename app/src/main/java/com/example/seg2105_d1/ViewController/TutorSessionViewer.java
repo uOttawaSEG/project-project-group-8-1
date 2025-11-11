@@ -53,9 +53,8 @@ public class TutorSessionViewer extends AppCompatActivity {
 
     private Mode currentMode = Mode.PENDING;
 
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
-
-    private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,12 +134,12 @@ public class TutorSessionViewer extends AppCompatActivity {
                         }
                         break;
                     case UPCOMING:
-                        if("APPROVED".equals(status) && isInTheFuture){
+                        if(!status.equals("REJECTED") && !status.equals("PENDING") && isInTheFuture){
                             sessionList.add(session);
                         }
                         break;
                     case PAST:
-                        if("APPROVED".equals(status) && !isInTheFuture){
+                        if(!status.equals("REJECTED") && !isInTheFuture){
                             sessionList.add(session);
                         }
                         break;
@@ -242,13 +241,13 @@ public class TutorSessionViewer extends AppCompatActivity {
             String endStr = "";
 
             if (session.getDate() != null) {
-                dateStr = session.getDate().format(dateFormat); // yyyy-MM-dd
+                dateStr = session.getDate().format(dateFormatter); // yyyy-MM-dd
             }
             if (session.getStartTime() != null) {
-                startStr = session.getStartTime().format(timeFormat); // hh:mm a
+                startStr = session.getStartTime().format(timeFormatter); // hh:mm a
             }
             if (session.getEndTime() != null) {
-                endStr = session.getEndTime().format(timeFormat); // hh:mm a
+                endStr = session.getEndTime().format(timeFormatter); // hh:mm a
             }
 
             String message = dateStr + "  " + startStr + " - " + endStr;

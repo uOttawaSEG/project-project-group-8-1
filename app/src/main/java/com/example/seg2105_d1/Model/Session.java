@@ -19,7 +19,7 @@ public class Session {
     private LocalTime endTime;
     private LocalDate date;
 
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
