@@ -8,11 +8,20 @@ public class Tutor extends User {
     private ArrayList<String> coursesOffered;
     private boolean manualApproval;
 
+    private int ratingSum;
+
+    private int numRates;
+
+    private double rating;
+
     public Tutor() {
         super();
         this.highestDegree = null;
         this.coursesOffered = new ArrayList<String>();
         this.manualApproval = false;
+        this.ratingSum=0;
+        this.numRates=0;
+        this.rating=0;
     }
 
     public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered, String registrationStatus) {
@@ -35,6 +44,17 @@ public class Tutor extends User {
 
     public void addCourses(String newCourse){
         coursesOffered.add(newCourse);
+    }
+
+    //updates tutor rating based on new rating
+    public void updateRating(int rating) {
+        this.ratingSum+=rating;
+        this.numRates++;
+        this.rating = (double) ratingSum/numRates;
+    }
+
+    public double getRating() {
+        return this.rating;
     }
 
 }
