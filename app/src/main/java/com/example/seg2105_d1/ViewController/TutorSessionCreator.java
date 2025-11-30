@@ -245,6 +245,9 @@ public class TutorSessionCreator extends AppCompatActivity {
                         WriteBatch batch = db.batch();
 
                         for (String slotId : availabilityID) {
+                            //implement check for if availability is linked to a session
+                            //availabilities either need a used attribute
+                            // or the sessions collection needs to be iterated through to find slotId
                             batch.delete(db.collection("availabilities").document(slotId));
                         }
 

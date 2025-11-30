@@ -24,10 +24,13 @@ public class Tutor extends User {
         this.rating=0;
     }
 
-    public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered, String registrationStatus) {
+    public Tutor(String firstName, String lastName, String emailAddressUsername, String accountPassword, String phoneNumber, String highestDegree, ArrayList<String> coursesOffered, String registrationStatus, float ratingSum, int numRates, double rating) {
         super(firstName, lastName, emailAddressUsername, accountPassword, phoneNumber, registrationStatus);
         this.highestDegree = highestDegree;
         this.coursesOffered = coursesOffered;
+        this.ratingSum=ratingSum;
+        this.numRates=numRates;
+        this.rating=rating;
     }
 
     public String getHighestDegree() {
@@ -57,5 +60,9 @@ public class Tutor extends User {
     public double getRating() {
         return this.rating;
     }
+
+    public void setRatingSum(float ratingSum){this.ratingSum=ratingSum;}
+    public void setNumRates(int numRates){this.numRates=numRates;}
+    public void setRating(double rating) {this.rating=rating;}
 
 }
