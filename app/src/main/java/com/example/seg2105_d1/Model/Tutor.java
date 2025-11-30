@@ -8,7 +8,7 @@ public class Tutor extends User {
     private ArrayList<String> coursesOffered;
     private boolean manualApproval;
 
-    private int ratingSum;
+    private float ratingSum;
 
     private int numRates;
 
@@ -47,12 +47,13 @@ public class Tutor extends User {
     }
 
     //updates tutor rating based on new rating
-    public void updateRating(int rating) {
+    public void updateRating(float rating) {
         this.ratingSum+=rating;
         this.numRates++;
         this.rating = (double) ratingSum/numRates;
     }
-
+    public float getRatingSum(){return this.ratingSum;}
+    public int getNumRates(){return this.numRates;}
     public double getRating() {
         return this.rating;
     }

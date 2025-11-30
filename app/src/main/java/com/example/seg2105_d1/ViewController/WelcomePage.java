@@ -144,8 +144,6 @@ public class WelcomePage extends AppCompatActivity {
 
         //finishes the activity, returns to login activity
         logOffButton.setOnClickListener(v -> {
-            Intent intent1 = new Intent(WelcomePage.this, MainPage.class);
-            startActivity(intent1);
             finish();
         });
     }

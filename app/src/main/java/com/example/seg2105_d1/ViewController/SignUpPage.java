@@ -33,9 +33,11 @@ public class SignUpPage extends AppCompatActivity {
         if(pressID== R.id.studentButton){
             Intent intent = new Intent(this, StudentSignUpPage.class);
             startActivity(intent);
+            finish();
         } else if (pressID == R.id.tutorButton){
             Intent intent = new Intent(this, TutorSignUpPage.class);
             startActivity(intent);
+            finish();
         }
 
     }
