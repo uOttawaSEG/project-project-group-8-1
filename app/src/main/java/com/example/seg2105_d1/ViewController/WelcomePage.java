@@ -127,9 +127,9 @@ public class WelcomePage extends AppCompatActivity {
                 //adds button to layout
                 linearLayout.addView(viewSessions);
 
-                //send to TutorSessionCreator if button selected
+                //send to StudentSessionCreator if button selected
                 createSession.setOnClickListener(v -> {
-                    Intent tmpIntent = new Intent(WelcomePage.this, StudentSessionCreator.class);
+                    Intent tmpIntent = new Intent(WelcomePage.this, StudentSearchPage.class);
 
                     startActivity(tmpIntent);
                 });

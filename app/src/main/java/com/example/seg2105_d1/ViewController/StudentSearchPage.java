@@ -2,6 +2,7 @@ package com.example.seg2105_d1.ViewController;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,42 +80,97 @@ public class StudentSearchPage extends AppCompatActivity {
     //Search db for Availabilities with matching course
     private void performSearch() {
         String courseCode = editTextCourseCode.getText().toString().trim();
+        Log.d("DEBUG", "Searching for course: " + courseCode);
 
         if (courseCode.isEmpty()) {
             Toast.makeText(this, "Please enter a course code", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        CollectionReference ref = db.collection("availabilities");
+        //first find tutors who offer the course
+        db.collection("users")
+                .whereEqualTo("role", "TUTOR")
+                .whereArrayContains("coursesOffered", courseCode)
+                .get()
+                .addOnSuccessListener(tutorSnap -> {
+                    Log.d("DEBUG", "Tutors found: " + tutorSnap.size());
+                    for (DocumentSnapshot doc : tutorSnap.getDocuments()) {
+                        Log.d("DEBUG", "Tutor ID: " + doc.getId());
+                    }
 
-        ref.whereEqualTo("course", courseCode).get().addOnSuccessListener(snapshot -> {
+                    if (tutorSnap.isEmpty()) {
+                        Toast.makeText(this, "No tutors offer this course", Toast.LENGTH_SHORT).show();
+                        resultsList.clear();
+                        resultsIds.clear();
+                        adapter.notifyDataSetChanged();
+                        return;
+                    }
 
-            resultsList.clear();
-            resultsIds.clear();
+                    List<String> tutorIds = new ArrayList<>();
+                    for (DocumentSnapshot doc : tutorSnap.getDocuments()) {
+                        tutorIds.add(doc.getId());
+                    }
 
-            for(DocumentSnapshot document : snapshot.getDocuments()) {
-                Availability slot = document.toObject(Availability.class);
-                if(slot == null){
-                    continue;
-                }
+                    // Query availabilities for these tutors
+                    if (tutorIds.isEmpty()) return;
 
-                resultsList.add(slot);
-                resultsIds.add(document.getId());
-            }
+                    db.collection("availabilities")
+                            .whereIn("tutorId", tutorIds)
+                            .get()
+                            .addOnSuccessListener(availSnap -> {
+                                Log.d("DEBUG", "Tutor IDs for availability query: " + tutorIds);
+                                Log.d("DEBUG", "Availabilities found: " + availSnap.size());
 
-            adapter.notifyDataSetChanged();
+                                resultsList.clear();
+                                resultsIds.clear();
 
-            if (resultsList.isEmpty()) {
-                Toast.makeText(this, "No available sessions found", Toast.LENGTH_SHORT).show();
-            }
+                                for (DocumentSnapshot document : availSnap.getDocuments()) {
+                                    Log.d("DEBUG", "Availability: " + document.getId() + " tutorId: " + document.getString("tutorId"));
+                                    try {
+                                        String dateStr = document.getString("date");
+                                        String startStr = document.getString("startTime");
+                                        String endStr = document.getString("endTime");
+                                        String tutorId = document.getString("tutorId");
+                                        Boolean used = document.getBoolean("used");
+                                        String course = document.getString("course");
 
-            }).addOnFailureListener(e ->
-                Toast.makeText(this, "Failed to load sessions: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-            );
+                                        if (dateStr == null || startStr == null || endStr == null || tutorId == null) continue;
+
+                                        Availability slot = new Availability();
+                                        slot.setDate(dateStr);       //
+                                        slot.setStartTime(startStr); // parses String -> LocalTime
+                                        slot.setEndTime(endStr);
+                                        slot.setTutor(tutorId);
+                                        if (used != null) slot.setUsed(used);
+                                        if (course != null) slot.setCourse(course);
+
+                                        resultsList.add(slot);
+                                        resultsIds.add(document.getId());
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace(); // skip problematic doc
+                                    }
+                                }
+
+                                adapter.notifyDataSetChanged();
+
+                                if (resultsList.isEmpty()) {
+                                    Toast.makeText(this, "No available sessions found", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }).addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to load availabilities: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
+                            );
+
+                }).addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to load tutors: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
+                );
+
     }
 
 
-    //TODO: Need tutor email on session? Availabilities don't store tutorEmail however
     private void handleRequest(Availability slot, String availabilityId) {
 
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
