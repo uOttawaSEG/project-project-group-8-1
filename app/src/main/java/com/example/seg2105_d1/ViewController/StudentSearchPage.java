@@ -40,6 +40,7 @@ public class StudentSearchPage extends AppCompatActivity {
     private String studentId;
     private SearchResultsAdapter adapter;
     private List<Availability> resultsList = new ArrayList<>();
+    private List<String> resultsIds = new ArrayList<>();  //since cannot access availabilities IDs directly
 
 
     @Override
@@ -64,8 +65,8 @@ public class StudentSearchPage extends AppCompatActivity {
 
         recyclerViewSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new SearchResultsAdapter(resultsList, availability -> {
-            handleRequest(availability);
+        adapter = new SearchResultsAdapter(resultsList, resultsIds, (slot, availabilityId) -> {
+            handleRequest(slot, availabilityId);
         });
 
         recyclerViewSearchResults.setAdapter(adapter);
@@ -87,6 +88,7 @@ public class StudentSearchPage extends AppCompatActivity {
         ref.whereEqualTo("course", courseCode).get().addOnSuccessListener(snapshot -> {
 
             resultsList.clear();
+            resultsIds.clear();
 
             for(DocumentSnapshot document : snapshot.getDocuments()) {
                 Availability slot = document.toObject(Availability.class);
@@ -95,6 +97,7 @@ public class StudentSearchPage extends AppCompatActivity {
                 }
 
                 resultsList.add(slot);
+                resultsIds.add(document.getId());
             }
 
             adapter.notifyDataSetChanged();
@@ -109,9 +112,8 @@ public class StudentSearchPage extends AppCompatActivity {
     }
 
 
-    //Needs tutor email implemented? Cant get email from availability
-    //Need to get user email
-    private void handleRequest(Availability slot) {
+    //TODO: Need tutor email on session? Availabilities don't store tutorEmail however
+    private void handleRequest(Availability slot, String availabilityId) {
 
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         studentId = preferences.getString("userID", null);
@@ -120,7 +122,6 @@ public class StudentSearchPage extends AppCompatActivity {
         Session session = new Session();
 
         session.setStudentId(studentId);
-        //session.setStudentEmail(studentId);
         session.setTutorId(slot.getTutor());
         //session.setTutorEmail(slot.getTutorEmail());
         session.setCourse(slot.getCourse());
@@ -132,12 +133,11 @@ public class StudentSearchPage extends AppCompatActivity {
         session.setEndTime(slot.getEndTime().toString());
 
         //add session request to db
-        // TODO: How to access slot(availability) ID from db to mark as USED?
         db.collection("sessions")
                 .add(session)
                 .addOnSuccessListener(docRef -> {
                     db.collection("availabilities")
-                            .document(slot.getId())
+                            .document(availabilityId)
                             .update("used", true)
                             .addOnSuccessListener(v -> Toast.makeText(this,
                                     "Session request sent!",
@@ -152,15 +152,17 @@ public class StudentSearchPage extends AppCompatActivity {
     private static class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
 
         private List<Availability> items;
+        private List<String> itemIds;
         private OnRequestClickListener listener;
 
         public interface OnRequestClickListener {
-            void onRequestClick(Availability availability);
+            void onRequestClick(Availability availability, String availabilityId);
         }
 
-        public SearchResultsAdapter(List<Availability> items, OnRequestClickListener listener) {
+        public SearchResultsAdapter(List<Availability> items, List<String> itemIds, OnRequestClickListener listener) {
             this.listener = listener;
             this.items = items;
+            this.itemIds = itemIds;
         }
 
 
@@ -207,7 +209,7 @@ public class StudentSearchPage extends AppCompatActivity {
 
             holder.requestButton.setOnClickListener(v -> {
                 if (listener != null)
-                    listener.onRequestClick(slot);
+                    listener.onRequestClick(slot, itemIds.get(position));
             });
         }
 
