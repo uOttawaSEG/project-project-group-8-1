@@ -7,15 +7,19 @@ import java.time.format.DateTimeFormatter;
 
 public class Availability {
     //instance variables ------------------------------------------------------------
+    private String id;
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalDate date;
 
     private String tutorId;
 
-    private boolean used;
+    private String tutorName;
 
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private boolean isBooked;
+
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -25,8 +29,14 @@ public class Availability {
     }
 
     //getters and setters -----------------------------------------------------------
-    public boolean used(){ return this.used;}
-    public void setUsed(boolean used){ this.used = used;}
+    public String getId(){ return this.id; }
+
+    public void setId(String id){
+        this.id = id;
+    }
+
+    public boolean getIsBooked(){ return this.isBooked;}
+    public void setIsBooked(boolean isBooked){ this.isBooked = isBooked;}
     public LocalTime getStartTime() {
         return startTime;
     }
@@ -51,13 +61,22 @@ public class Availability {
         this.date = LocalDate.parse(date, dateFormat);
     }
 
-    public String getTutor() {
+    public String getTutorId() {
         return tutorId;
     }
 
-    public void setTutor(String tutorId)  {
+    public void setTutorId(String tutorId)  {
         this.tutorId = tutorId;
     }
+
+    public String getTutorName() {
+        return tutorName;
+    }
+
+    public void setTutorName(String tutorName)  {
+        this.tutorName = tutorName;
+    }
+
 
     //helper methods ------------------------------------------------------------------
 

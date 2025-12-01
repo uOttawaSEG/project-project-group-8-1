@@ -58,10 +58,12 @@ public class TutorSessionCreator extends AppCompatActivity {
     private ArrayList<ArrayList<String>> availabilityIds = new ArrayList<>();
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter twelveHourTimeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
     private FirebaseFirestore db;
     private String tutorId;
+
+    private String tutorName;
     private boolean manualApproval;
 
 
@@ -83,6 +85,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         // Get tutor ID (from firebase)
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         tutorId = preferences.getString("userID", null);
+        tutorId = preferences.getString("userName", null);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availabilityList);
         listAvailabilities.setAdapter(adapter);
@@ -139,7 +142,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
         //iterate through list of times in the day and add to spinner
         for(int i =0; i<48; i++){
-            times.add(time.format(timeFormat));
+            times.add(time.format(twelveHourTimeFormat));
             time = time.plusMinutes(30);
         }
 
@@ -158,7 +161,8 @@ public class TutorSessionCreator extends AppCompatActivity {
             availability.setDate(dateFormat.format(selectedDate));  // yyyy-MM-dd
             availability.setStartTime(start);
             availability.setEndTime(end);
-            availability.setTutor(tutorId);
+            availability.setTutorId(tutorId);
+            availability.setTutorName(tutorName);
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
@@ -181,9 +185,9 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
-                slot.setStartTime(timeFormat.format(startTime));
-                slot.setEndTime(timeFormat.format(slotEnd));
-                slot.setTutor(availability.getTutor());
+                slot.setStartTime(twelveHourTimeFormat.format(startTime));
+                slot.setEndTime(twelveHourTimeFormat.format(slotEnd));
+                slot.setTutorId(availability.getTutorId());
 
                 slots.add(slot);
                 startTime = slotEnd;

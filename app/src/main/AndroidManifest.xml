@@ -30,6 +30,9 @@
             android:name=".ViewController.StudentSessionCreator"
             android:exported="false" />
         <activity
+            android:name=".ViewController.ActivityStudentSearchSlots"
+            android:exported="false" />
+        <activity
             android:name=".ViewController.StudentInfo"
             android:exported="false" />
         <activity
