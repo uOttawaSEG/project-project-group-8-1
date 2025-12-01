@@ -37,6 +37,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -235,30 +236,47 @@ public class TutorSessionCreator extends AppCompatActivity {
     }
 
     private void setupListClick(){
-        listAvailabilities.setOnItemClickListener(((parent, view, position, id) -> {
+        listAvailabilities.setOnItemClickListener((parent, view, position, id) -> {
             ArrayList<String> availabilityID = availabilityIds.get(position);
 
             new AlertDialog.Builder(this)
                     .setTitle("Delete Availability")
                     .setMessage("Are you sure you want to delete this slot?")
                     .setPositiveButton("Delete", (dialog, which) ->{
-                        WriteBatch batch = db.batch();
+                        db.collection("sessions")
+                                .whereEqualTo("tutorId", tutorId)
+                                .whereArrayContainsAny("availabilitySlotIds", availabilityID)
+                                .whereIn("status", Arrays.asList("PENDING", "APPROVED"))
+                                .get()
+                                .addOnSuccessListener(sessionSnap -> {
 
-                        for (String slotId : availabilityID) {
-                            batch.delete(db.collection("availabilities").document(slotId));
-                        }
+                                    if (sessionSnap != null && !sessionSnap.isEmpty()) {
+                                        //Session already associated with this availability
+                                        Toast.makeText(this, "You cannot delete this availability because a session is booked or pending.",
+                                                Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
 
-                        batch.commit()
-                                .addOnSuccessListener(aVoid ->{
-                                    Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
+                                    WriteBatch batch = db.batch();
+
+                                    for (String slotId : availabilityID) {
+                                        batch.delete(db.collection("availabilities").document(slotId));
+                                    }
+
+                                    batch.commit()
+                                            .addOnSuccessListener(aVoid ->{
+                                                Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
+                                            })
+                                            .addOnFailureListener(e ->{
+                                                Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
+                                            });
                                 })
-                                .addOnFailureListener(e ->{
-                                    Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
-                                });
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this, "Error checking sessions.", Toast.LENGTH_SHORT).show());
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
-        }));
+        });
     }
 
     private void loadAvailabilities(){
