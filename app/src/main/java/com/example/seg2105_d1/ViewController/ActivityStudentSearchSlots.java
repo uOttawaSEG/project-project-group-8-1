@@ -47,7 +47,8 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
     private SearchSlotsAdapter adapter;
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateTimeFormatter timeFormatSpinner = DateTimeFormatter.ofPattern("hh:mm a"); //12hour timeformat
+    private final DateTimeFormatter timeFormatDb = DateTimeFormatter.ofPattern("HH:mm");//database 24hour timeformat
 
     private String searchedCourse = "";
 
@@ -72,6 +73,7 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
 
         SharedPreferences pref = getSharedPreferences("userPref", MODE_PRIVATE);
         studentId = pref.getString("userID", null);
+        studentEmail = pref.getString("userEmail", null);
 
         btnSearch.setOnClickListener(v -> {
             searchedCourse = etCourseCode.getText().toString().trim();
@@ -144,33 +146,58 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
     }
 
     private void requestSession(Availability slot, String availabilityId) {
+        checkForConflictAndCreateSession(slot, availabilityId);
+    }
+
+    private void createSessionAndRemoveSlot(Availability slot, String availabilityId) {
 
         SharedPreferences pref = getSharedPreferences("userPref", MODE_PRIVATE);
 
-        Session session = new Session();
+        String studentEmail = pref.getString("userEmail", null);
+        String course = etCourseCode.getText().toString().trim();
 
-        session.setTutorId(slot.getTutorId());
-        session.setStudentEmail(pref.getString("userEmail", null));
-        session.setCourse(etCourseCode.getText().toString().trim());
-        session.setStatus("PENDING");
+        db.collection("users")
+                .document(slot.getTutorId())
+                .get()
+                .addOnSuccessListener(tutorDoc -> {
 
-        // Proper storage format
-        session.setDate(slot.getDate().toString());
-        session.setStartTime(slot.getStartTime().toString());
-        session.setEndTime(slot.getEndTime().toString());
+                    boolean autoApprove = !tutorDoc.getBoolean("manualApproval");
 
-        db.collection("sessions")
-                .add(session)
-                .addOnSuccessListener(ref -> {
+                    Session session = new Session();
 
-                    db.collection("availabilities")
-                            .document(availabilityId)
-                            .update("isBooked", true);
+                    session.setTutorId(slot.getTutorId());
+                    session.setStudentEmail(studentEmail);
+                    session.setCourse(course);
 
-                    Toast.makeText(this, "Request sent", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Request failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    session.setStatus(autoApprove ? "APPROVED" : "PENDING");
+
+                    session.setDate(slot.getDate().format(dateFormat));
+                    session.setStartTime(timeFormatDb.format(slot.getStartTime()));
+                    session.setEndTime(timeFormatDb.format(slot.getStartTime()));
+
+                    List<String> slotList = new ArrayList<>();
+                    slotList.add(availabilityId);
+                    session.setAvailabilitySlotIds(slotList);
+
+                    db.collection("sessions")
+                            .add(session)
+                            .addOnSuccessListener(ref -> {
+
+                                // Step 2: mark availability booked
+                                db.collection("availabilities")
+                                        .document(availabilityId)
+                                        .update("isBooked", true);
+
+                                Toast.makeText(this,
+                                        autoApprove ? "Session booked" : "Request sent to tutor",
+                                        Toast.LENGTH_SHORT).show();
+
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this,
+                                            "Failed to create session: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show());
+                });
     }
 
     private static class SearchSlotsAdapter extends RecyclerView.Adapter<SearchSlotsAdapter.ViewHolder> {
@@ -241,6 +268,44 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
                 btnRequest = itemView.findViewById(R.id.btnRequest);
             }
         }
+    }
+
+    private void checkForConflictAndCreateSession(Availability slot, String availabilityId) {
+
+        db.collection("sessions")
+                .whereEqualTo("studentEmail", studentEmail)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Session s = doc.toObject(Session.class);
+                        if (s == null) continue;
+
+                        if (!s.getStatus().equals("REJECTED")) {
+                            if (isConflict(s, slot)) {
+                                Toast.makeText(this,
+                                        "You already have a session at this time.",
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+                    }
+
+                    createSessionAndRemoveSlot(slot, availabilityId);
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error checking conflicts: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    private boolean isConflict(Session existing, Availability newSlot) {
+
+        if (!existing.getDate().equals(newSlot.getDate())) {
+            return false;
+        }
+
+        return existing.getStartTime().isBefore(newSlot.getEndTime())
+                && existing.getEndTime().isAfter(newSlot.getStartTime());
     }
 
 }
