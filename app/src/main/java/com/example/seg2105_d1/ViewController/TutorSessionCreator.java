@@ -245,6 +245,9 @@ public class TutorSessionCreator extends AppCompatActivity {
                         WriteBatch batch = db.batch();
 
                         for (String slotId : availabilityID) {
+                            //implement check for if availability is linked to a session
+                            //availabilities either need a used attribute
+                            // or the sessions collection needs to be iterated through to find slotId
                             batch.delete(db.collection("availabilities").document(slotId));
                         }
 
@@ -286,33 +289,36 @@ public class TutorSessionCreator extends AppCompatActivity {
                             String date = doc.getString("date");
                             String start = doc.getString("startTime");
                             String end = doc.getString("endTime");
+                            LocalDate checkPast = LocalDate.parse(date);
 
                             if (date == null || start == null || end == null) continue;
 
-                            if (currentDate == null) {
-                                currentDate = date;
-                                currentStart = start;
-                                currentEnd = end;
-                                //adds slots to currentIds
-                                currentIds.add(doc.getId());
-                            } else if (currentDate.equals(date) && currentEnd.equals(start)) {
-                                //merge continuous slots
-                                currentEnd = end;
-                                //adds slots to currentIds
-                                currentIds.add(doc.getId());
-                            } else {
-                                //adds merged slot to the list
-                                String formatted = currentDate + " " + currentStart + " - " + currentEnd;
-                                availabilityList.add(formatted);
-                                //adds the list of slots that is within the merged slot
-                                availabilityIds.add(new ArrayList<>(currentIds));
+                            if (checkPast.isAfter(LocalDate.now())) {
+                                if (currentDate == null) {
+                                    currentDate = date;
+                                    currentStart = start;
+                                    currentEnd = end;
+                                    //adds slots to currentIds
+                                    currentIds.add(doc.getId());
+                                } else if (currentDate.equals(date) && currentEnd.equals(start)) {
+                                    //merge continuous slots
+                                    currentEnd = end;
+                                    //adds slots to currentIds
+                                    currentIds.add(doc.getId());
+                                } else {
+                                    //adds merged slot to the list
+                                    String formatted = currentDate + " " + currentStart + " - " + currentEnd;
+                                    availabilityList.add(formatted);
+                                    //adds the list of slots that is within the merged slot
+                                    availabilityIds.add(new ArrayList<>(currentIds));
 
-                                //resets variables
-                                currentDate = date;
-                                currentStart = start;
-                                currentEnd = end;
-                                currentIds.clear();
-                                currentIds.add(doc.getId());
+                                    //resets variables
+                                    currentDate = date;
+                                    currentStart = start;
+                                    currentEnd = end;
+                                    currentIds.clear();
+                                    currentIds.add(doc.getId());
+                                }
                             }
                         }
 

@@ -165,6 +165,10 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             data.put("highestDegree", newTutor.getHighestDegree());
             data.put("courseOffered", newTutor.getCoursesOffered());
             data.put("registrationStatus", newTutor.getRegistrationStatus());
+            data.put("manualApproval",false);
+            data.put("ratingSum", 0);
+            data.put("numRates",0);
+            data.put("rating",0);
 
             db.collection("users")
                     .add(data)
