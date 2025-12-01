@@ -59,7 +59,8 @@ public class TutorSessionCreator extends AppCompatActivity {
     private ArrayList<ArrayList<String>> availabilityIds = new ArrayList<>();
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter timeFormatSpinner = DateTimeFormatter.ofPattern("hh:mm a"); //12hour timeformat
+    private final DateTimeFormatter timeFormatDb = DateTimeFormatter.ofPattern("HH:mm");//database 24hour timeformat
 
     private FirebaseFirestore db;
     private String tutorId;
@@ -140,7 +141,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
         //iterate through list of times in the day and add to spinner
         for(int i =0; i<48; i++){
-            times.add(time.format(timeFormat));
+            times.add(time.format(timeFormatSpinner));
             time = time.plusMinutes(30);
         }
 
@@ -155,10 +156,14 @@ public class TutorSessionCreator extends AppCompatActivity {
             String start = spinnerStart.getSelectedItem().toString();
             String end = spinnerEnd.getSelectedItem().toString();
 
+            // Convert spinner 12-hour string to 24-hour string
+            String start24 = LocalTime.parse(start, timeFormatSpinner).format(timeFormatDb);
+            String end24 = LocalTime.parse(end, timeFormatSpinner).format(timeFormatDb);
+
             Availability availability = new Availability();
             availability.setDate(dateFormat.format(selectedDate));  // yyyy-MM-dd
-            availability.setStartTime(start);
-            availability.setEndTime(end);
+            availability.setStartTime(start24);    //convert to 24hr
+            availability.setEndTime(end24);    //convert to 24hr
             availability.setTutor(tutorId);
 
             if (!availability.timeOrderValid()) {
@@ -182,8 +187,8 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
-                slot.setStartTime(timeFormat.format(startTime));
-                slot.setEndTime(timeFormat.format(slotEnd));
+                slot.setStartTime(startTime.format(timeFormatDb));
+                slot.setEndTime(slotEnd.format(timeFormatDb));
                 slot.setTutor(availability.getTutor());
 
                 slots.add(slot);

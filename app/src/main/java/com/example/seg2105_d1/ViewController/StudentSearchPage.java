@@ -90,7 +90,7 @@ public class StudentSearchPage extends AppCompatActivity {
         //first find tutors who offer the course
         db.collection("users")
                 .whereEqualTo("role", "TUTOR")
-                .whereArrayContains("coursesOffered", courseCode)
+                .whereArrayContains("courseOffered", courseCode)
                 .get()
                 .addOnSuccessListener(tutorSnap -> {
                     Log.d("DEBUG", "Tutors found: " + tutorSnap.size());
@@ -282,7 +282,6 @@ public class StudentSearchPage extends AppCompatActivity {
             String formattedTimeRange = slot.getStartTime().format(timeFormatter) + " - " + slot.getEndTime().format(timeFormatter);
 
 
-            holder.tutorName.setText("Tutor: " + slot.getTutor());
             holder.date.setText("Date: " + formattedDate);
             holder.time.setText("Time: " + formattedTimeRange);
 
@@ -291,17 +290,32 @@ public class StudentSearchPage extends AppCompatActivity {
                     .get()
                     .addOnSuccessListener(document -> {
                         if (document.exists()) {
+                            String firstName = document.getString("firstName");
+                            String lastName = document.getString("lastName");
                             Double rating = document.getDouble("rating");
+
+                            // Update tutor name
+                            if (firstName != null && lastName != null) {
+                                holder.tutorName.setText("Tutor: " + firstName + " " + lastName);
+                            } else {
+                                holder.tutorName.setText("Tutor: N/A");
+                            }
+
                             if (rating != null) {
                                 holder.tutorRating.setText("Rating: " + String.format("%.1f", rating));
                             } else {
                                 holder.tutorRating.setText("Rating: N/A");
                             }
                         } else {
+                            holder.tutorName.setText("Tutor: N/A");
                             holder.tutorRating.setText("Rating: N/A");
                         }
                     })
-                    .addOnFailureListener(e -> holder.tutorRating.setText("Rating: N/A"));
+                    .addOnFailureListener(e -> {
+                        holder.tutorRating.setText("Rating: N/A");
+                        holder.tutorRating.setText("Rating: N/A");
+                    });
+
 
             holder.requestButton.setOnClickListener(v -> {
                 if (listener != null)
