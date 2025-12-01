@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.example.seg2105_d1.Model.Availability;
 import com.example.seg2105_d1.Model.Session;
 import com.example.seg2105_d1.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -33,16 +35,21 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
 
     private EditText etCourseCode;
     private Button btnSearch;
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerViewSlots;
 
     private FirebaseFirestore db;
     private String studentEmail;
 
     private final List<Availability> slotList = new ArrayList<>();
-    private SlotAdapter adapter;
+    private final List<String> availabilityIds = new ArrayList<>();
+
+    private String studentId;
+    private SearchSlotsAdapter adapter;
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
+    private String searchedCourse = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,122 +64,183 @@ public class ActivityStudentSearchSlots extends AppCompatActivity {
 
         etCourseCode = findViewById(R.id.etCourseCode);
         btnSearch = findViewById(R.id.btnSearch);
-        recyclerView = findViewById(R.id.recyclerViewSlots);
+        recyclerViewSlots = findViewById(R.id.recyclerViewSlots);
+
+        recyclerViewSlots.setLayoutManager(new LinearLayoutManager(this));
 
         db = FirebaseFirestore.getInstance();
-        studentEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();//change it later for getting the email
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new SlotAdapter(slotList);
-        recyclerView.setAdapter(adapter);
+        SharedPreferences pref = getSharedPreferences("userPref", MODE_PRIVATE);
+        studentId = pref.getString("userID", null);
 
-        btnSearch.setOnClickListener(v -> searchSlots());
+        btnSearch.setOnClickListener(v -> {
+            searchedCourse = etCourseCode.getText().toString().trim();
+            searchTutors();
+        });
     }
 
-    private void searchSlots() {
-        String course = etCourseCode.getText().toString().trim();
-        if (course.isEmpty()) {
-            Toast.makeText(this, "Enter course code.", Toast.LENGTH_SHORT).show();
+    private void searchTutors() {
+        String courseCode = etCourseCode.getText().toString().trim();
+
+        if (courseCode.isEmpty()) {
+            Toast.makeText(this, "Enter course code", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Query query = db.collection("availabilities")
-                .whereEqualTo("course", course)
-                .whereEqualTo("isBooked", false);
+        db.collection("users")
+                .whereEqualTo("role", "TUTOR")
+                .whereArrayContains("courseOffered", courseCode)
+                .get()
+                .addOnSuccessListener(snapshot -> {
 
-        query.get().addOnSuccessListener(snapshot -> {
-            slotList.clear();
+                    List<String> tutorIds = new ArrayList<>();
 
-            snapshot.getDocuments().forEach(doc -> {
-                Availability slot = doc.toObject(Availability.class);
-                if (slot != null) {
-                    slot.setId(doc.getId());
-                    slotList.add(slot);
-                }
-            });
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        tutorIds.add(doc.getId());
+                    }
 
-            adapter.notifyDataSetChanged();
+                    if (tutorIds.isEmpty()) {
+                        Toast.makeText(this, "No tutors offer this course.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
-            if (slotList.isEmpty()) {
-                Toast.makeText(this, "No available slots found.", Toast.LENGTH_SHORT).show();
-            }
+                    loadAvailabilities(tutorIds);
 
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private class SlotAdapter extends RecyclerView.Adapter<SlotViewHolder> {
+    private void loadAvailabilities(List<String> tutorIds) {
 
-        private final List<Availability> data;
+        db.collection("availabilities")
+                .whereIn("tutorId", tutorIds)
+                .whereEqualTo("isBooked", false)
+                .get()
+                .addOnSuccessListener(snapshot -> {
 
-        SlotAdapter(List<Availability> data) {
-            this.data = data;
+                    slotList.clear();
+                    availabilityIds.clear();
+
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        Availability slot = doc.toObject(Availability.class);
+                        if (slot == null) continue;
+
+                        slotList.add(slot);
+                        availabilityIds.add(doc.getId());
+                    }
+
+                    adapter = new SearchSlotsAdapter(slotList, availabilityIds, searchedCourse, this::requestSession);
+                    recyclerViewSlots.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+
+                    if (slotList.isEmpty()) {
+                        Toast.makeText(this, "No available slots.", Toast.LENGTH_SHORT).show();
+                    }
+
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Error loading slots: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void requestSession(Availability slot, String availabilityId) {
+
+        SharedPreferences pref = getSharedPreferences("userPref", MODE_PRIVATE);
+
+        Session session = new Session();
+
+        session.setTutorId(slot.getTutorId());
+        session.setStudentEmail(pref.getString("userEmail", null));
+        session.setCourse(etCourseCode.getText().toString().trim());
+        session.setStatus("PENDING");
+
+        // Proper storage format
+        session.setDate(slot.getDate().toString());
+        session.setStartTime(slot.getStartTime().toString());
+        session.setEndTime(slot.getEndTime().toString());
+
+        db.collection("sessions")
+                .add(session)
+                .addOnSuccessListener(ref -> {
+
+                    db.collection("availabilities")
+                            .document(availabilityId)
+                            .update("isBooked", true);
+
+                    Toast.makeText(this, "Request sent", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Request failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private static class SearchSlotsAdapter extends RecyclerView.Adapter<SearchSlotsAdapter.ViewHolder> {
+
+        private final List<Availability> items;
+        private final List<String> ids;
+        private final OnRequestListener listener;
+
+        private final String courseCode;
+
+        interface OnRequestListener {
+            void onRequest(Availability slot, String availabilityId);
+        }
+
+        SearchSlotsAdapter(List<Availability> items,
+                           List<String> ids,
+                           String courseCode,
+                           OnRequestListener listener) {
+            this.items = items;
+            this.ids = ids;
+            this.courseCode = courseCode;
+            this.listener = listener;
         }
 
         @NonNull
         @Override
-        public SlotViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = android.view.LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_available_slot, parent, false);
-            return new SlotViewHolder(v);
+            return new ViewHolder(v);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull SlotViewHolder holder, int position) {
-            Availability slot = data.get(position);
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-            holder.tvTutorName.setText(slot.getTutorName());
-            holder.tvCourse.setText(slot.getCourse());
-            holder.tvDateTime.setText(slot.getDate() + " | " + slot.getStartTime() + "-" + slot.getEndTime());
+            Availability slot = items.get(position);
 
-            holder.btnRequest.setOnClickListener(v -> requestSession(slot));
+            DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter tf = DateTimeFormatter.ofPattern("HH:mm");
+
+            holder.tvTutorName.setText("Tutor: " + slot.getTutorName());
+            holder.tvCourse.setText("Course: " + courseCode);
+            holder.tvDateTime.setText(
+                    slot.getDate().format(df) + " | " +
+                            slot.getStartTime().format(tf) + "–" +
+                            slot.getEndTime().format(tf)
+            );
+
+            holder.btnRequest.setOnClickListener(v ->
+                    listener.onRequest(slot, ids.get(position)));
         }
 
         @Override
         public int getItemCount() {
-            return data.size();
+            return items.size();
         }
-    }
 
-    private class SlotViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTutorName, tvCourse, tvDateTime;
-        Button btnRequest;
+        static class ViewHolder extends RecyclerView.ViewHolder {
 
-        SlotViewHolder(@NonNull View itemView) {
-            super(itemView);
-            tvTutorName = itemView.findViewById(R.id.tvTutorName);
-            tvCourse = itemView.findViewById(R.id.tvCourse);
-            tvDateTime = itemView.findViewById(R.id.tvDateTime);
-            btnRequest = itemView.findViewById(R.id.btnRequest);
+            TextView tvTutorName, tvCourse, tvDateTime;
+            Button btnRequest;
+
+            ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                tvTutorName = itemView.findViewById(R.id.tvTutorName);
+                tvCourse = itemView.findViewById(R.id.tvCourse);
+                tvDateTime = itemView.findViewById(R.id.tvDateTime);
+                btnRequest = itemView.findViewById(R.id.btnRequest);
+            }
         }
-    }
-
-    private void requestSession(Availability slot) {
-
-        Session s = new Session();
-        s.setTutorId(slot.getTutorId());
-        s.setStudentEmail(studentEmail);
-        s.setDate(dateFormat.format(slot.getDate()));
-        s.setStartTime(timeFormat.format(slot.getStartTime()));
-        s.setEndTime(timeFormat.format(slot.getEndTime()));
-        s.setCourse(slot.getCourse());
-        s.setStatus("PENDING");
-        s.setAvailabilitySlotIds(List.of(slot.getId()));
-
-        db.collection("sessions")
-                .add(s)
-                .addOnSuccessListener(ref -> {
-                    // mark slot as booked
-                    db.collection("availabilities").document(slot.getId())
-                            .update("isBooked", true);
-
-                    slotList.remove(slot); // remove from list
-                    adapter.notifyDataSetChanged();
-
-                    Toast.makeText(this, "Session requested!", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
 }

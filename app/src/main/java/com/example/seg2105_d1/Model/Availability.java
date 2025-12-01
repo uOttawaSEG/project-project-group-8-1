@@ -14,10 +14,12 @@ public class Availability {
 
     private String tutorId;
 
+    private String tutorName;
+
 
     private boolean isBooked;
 
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -65,6 +67,14 @@ public class Availability {
 
     public void setTutorId(String tutorId)  {
         this.tutorId = tutorId;
+    }
+
+    public String getTutorName() {
+        return tutorName;
+    }
+
+    public void setTutorName(String tutorName)  {
+        this.tutorName = tutorName;
     }
 
 
