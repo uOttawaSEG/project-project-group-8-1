@@ -103,6 +103,11 @@ public class LoginPage extends AppCompatActivity {
                     preferences.edit().putString("userID", document.getId()).apply();
                     preferences.edit().putString("userRole", Objects.toString(data.get("role"))).apply();
                     preferences.edit().putString("userEmail", Objects.toString(data.get("emailAddressUsername"))).apply();
+                    String first = Objects.toString(data.get("firstName"), "");
+                    String last = Objects.toString(data.get("lastName"), "");
+                    preferences.edit()
+                            .putString("userName", first + " " + last)
+                            .apply();
                     startActivity(registeredIntent);
                     finish();
                     break;

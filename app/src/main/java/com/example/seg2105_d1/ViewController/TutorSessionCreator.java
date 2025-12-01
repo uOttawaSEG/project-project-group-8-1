@@ -62,6 +62,8 @@ public class TutorSessionCreator extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private String tutorId;
+
+    private String tutorName;
     private boolean manualApproval;
 
 
@@ -83,6 +85,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         // Get tutor ID (from firebase)
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         tutorId = preferences.getString("userID", null);
+        tutorId = preferences.getString("userName", null);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availabilityList);
         listAvailabilities.setAdapter(adapter);
@@ -159,6 +162,7 @@ public class TutorSessionCreator extends AppCompatActivity {
             availability.setStartTime(start);
             availability.setEndTime(end);
             availability.setTutorId(tutorId);
+            availability.setTutorName(tutorName);
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
