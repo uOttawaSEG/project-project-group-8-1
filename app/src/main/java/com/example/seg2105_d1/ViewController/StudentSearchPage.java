@@ -26,6 +26,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,33 +120,71 @@ public class StudentSearchPage extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         studentId = preferences.getString("userID", null);
 
-        // Create new session aka the request
-        Session session = new Session();
+        // Convert times to LocalTime/LocalDate for comparison
+        LocalDate newDate = slot.getDate();
+        LocalTime newStart = slot.getStartTime();
+        LocalTime newEnd = slot.getEndTime();
 
-        session.setStudentId(studentId);
-        session.setTutorId(slot.getTutor());
-        //session.setTutorEmail(slot.getTutorEmail());
-        session.setCourse(slot.getCourse());
-        session.setStatus("PENDING");
-        session.setStudentEmail(preferences.getString("email", null));
-
-        session.setDate(slot.getDate().toString());
-        session.setStartTime(slot.getStartTime().toString());
-        session.setEndTime(slot.getEndTime().toString());
-
-        //add session request to db
+        //Query existing student sessions (PENDING or APPROVED)
         db.collection("sessions")
-                .add(session)
-                .addOnSuccessListener(docRef -> {
-                    db.collection("availabilities")
-                            .document(availabilityId)
-                            .update("used", true)
-                            .addOnSuccessListener(v -> Toast.makeText(this,
-                                    "Session request sent!",
-                                    Toast.LENGTH_SHORT).show());
+                .whereEqualTo("studentId", studentId)
+                .whereIn("status", List.of("PENDING", "APPROVED"))
+                .get()
+                .addOnSuccessListener(existingSessions -> {
+
+                    //Check for time conflicts
+                    for (DocumentSnapshot doc : existingSessions.getDocuments()) {
+                        Session s = doc.toObject(Session.class);
+                        if (s == null) continue;
+
+                        LocalDate existingDate = s.getDate();
+                        LocalTime existingStart = s.getStartTime();
+                        LocalTime existingEnd = s.getEndTime();
+
+                        // Skip sessions on different dates
+                        if (!Objects.equals(existingDate, newDate)) continue;
+
+                        // Time conflict check
+                        boolean conflict = newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart);
+
+                        if (conflict) {
+                            Toast.makeText(this,
+                                    "You already have a session at this time.",
+                                    Toast.LENGTH_LONG).show();
+                            return; // does not book the session
+                        }
+                    }
+
+                    // No conflict found, create the new session
+                    Session session = new Session();
+                    session.setStudentId(studentId);
+                    session.setTutorId(slot.getTutor());
+                    session.setCourse(slot.getCourse());
+                    session.setStatus("PENDING");
+                    session.setStudentEmail(preferences.getString("email", null));
+
+                    session.setDate(newDate.toString());
+                    session.setStartTime(newStart.toString());
+                    session.setEndTime(newEnd.toString());
+
+                    db.collection("sessions")
+                            .add(session)
+                            .addOnSuccessListener(docRef -> {
+                                db.collection("availabilities")
+                                        .document(availabilityId)
+                                        .update("used", true)
+                                        .addOnSuccessListener(v -> Toast.makeText(this,
+                                                "Session request sent!",
+                                                Toast.LENGTH_SHORT).show());
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Request failed: " + e.getMessage(),
+                                            Toast.LENGTH_SHORT).show()
+                            );
+
                 })
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "Request failed: " + e.getMessage(),
+                        Toast.makeText(this, "Error checking existing sessions: " + e.getMessage(),
                                 Toast.LENGTH_SHORT).show()
                 );
     }
