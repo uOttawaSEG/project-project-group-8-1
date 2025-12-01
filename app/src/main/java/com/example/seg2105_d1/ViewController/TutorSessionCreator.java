@@ -158,7 +158,7 @@ public class TutorSessionCreator extends AppCompatActivity {
             availability.setDate(dateFormat.format(selectedDate));  // yyyy-MM-dd
             availability.setStartTime(start);
             availability.setEndTime(end);
-            availability.setTutor(tutorId);
+            availability.setTutorId(tutorId);
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
@@ -183,7 +183,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                 slot.setDate(date.toString());
                 slot.setStartTime(timeFormat.format(startTime));
                 slot.setEndTime(timeFormat.format(slotEnd));
-                slot.setTutor(availability.getTutor());
+                slot.setTutorId(availability.getTutorId());
 
                 slots.add(slot);
                 startTime = slotEnd;

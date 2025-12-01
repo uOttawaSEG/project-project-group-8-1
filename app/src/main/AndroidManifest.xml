@@ -18,6 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SEG2105_D1">
         <activity
+            android:name=".ViewController.ActivityStudentSearchSlots"
+            android:exported="false" />
+        <activity
             android:name=".ViewController.StudentInfo"
             android:exported="false" />
         <activity
