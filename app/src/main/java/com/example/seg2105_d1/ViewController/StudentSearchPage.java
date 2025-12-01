@@ -1,5 +1,6 @@
 package com.example.seg2105_d1.ViewController;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,17 +20,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.seg2105_d1.Model.Availability;
+import com.example.seg2105_d1.Model.Session;
 import com.example.seg2105_d1.R;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class StudentSearchPage extends AppCompatActivity {
 
+    private FirebaseFirestore db;
     private EditText editTextCourseCode;
     private Button buttonSearchSessions;
     private RecyclerView recyclerViewSearchResults;
+    private String studentId;
     private SearchResultsAdapter adapter;
     private List<Availability> resultsList = new ArrayList<>();
 
@@ -45,6 +53,11 @@ public class StudentSearchPage extends AppCompatActivity {
             return insets;
         });
 
+        db = FirebaseFirestore.getInstance();
+
+        SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
+        studentId = preferences.getString("userID", null);
+
         editTextCourseCode = findViewById(R.id.editTextCourseCode);
         buttonSearchSessions = findViewById(R.id.buttonSearchSessions);
         recyclerViewSearchResults = findViewById(R.id.recyclerViewSearchResults);
@@ -57,67 +70,83 @@ public class StudentSearchPage extends AppCompatActivity {
 
         recyclerViewSearchResults.setAdapter(adapter);
 
-        // 4. Search button logic
         buttonSearchSessions.setOnClickListener(v -> performSearch());
     }
 
+    //Search db for Availabilities with matching course
     private void performSearch() {
-        String course = editTextCourseCode.getText().toString().trim();
+        String courseCode = editTextCourseCode.getText().toString().trim();
 
-        if (course.isEmpty()) {
+        if (courseCode.isEmpty()) {
             Toast.makeText(this, "Please enter a course code", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Test search
-        List<Availability> found = mockSearch(course);
+        CollectionReference ref = db.collection("availabilities");
 
-       //update results
-        resultsList.clear();
-        resultsList.addAll(found);
-        adapter.notifyDataSetChanged();
-    }
+        ref.whereEqualTo("course", courseCode).get().addOnSuccessListener(snapshot -> {
 
-    // TODO: implement actual db search
-    private List<Availability> mockSearch(String course) {
-        List<Availability> allslots = new ArrayList<>();
+            resultsList.clear();
 
-        //fake data for testing
-        Availability av1 = new Availability();
-        Availability av2 = new Availability();
+            for(DocumentSnapshot document : snapshot.getDocuments()) {
+                Availability slot = document.toObject(Availability.class);
+                if(slot == null){
+                    continue;
+                }
 
-        av1.setDate("2025-12-01");
-        av1.setStartTime("10:00 AM");
-        av1.setEndTime("11:00 PM");
-        av1.setTutor("tutorid123");
-        av1.setCourse("TUT123");
-
-        av2.setDate("2025-12-02");
-        av2.setStartTime("10:00 AM");
-        av2.setEndTime("11:00 PM");
-        av2.setTutor("tutorid9999");
-        av2.setCourse("SEG123");
-
-        allslots.add(av1);
-        allslots.add(av2);
-
-        List<Availability> filtered = new ArrayList<>();
-        for (Availability slot : allslots) {
-            if (slot.getCourse().equalsIgnoreCase(course)) {
-                filtered.add(slot);
+                resultsList.add(slot);
             }
-        }
 
-        return filtered;
+            adapter.notifyDataSetChanged();
+
+            if (resultsList.isEmpty()) {
+                Toast.makeText(this, "No available sessions found", Toast.LENGTH_SHORT).show();
+            }
+
+            }).addOnFailureListener(e ->
+                Toast.makeText(this, "Failed to load sessions: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            );
     }
 
+
+    //Needs tutor email implemented? Cant get email from availability
+    //Need to get user email
     private void handleRequest(Availability slot) {
-        Toast.makeText(this, "Requested " + slot.getDate(), Toast.LENGTH_SHORT).show();
 
-        // TODO: Add request logic here
+        SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
+        studentId = preferences.getString("userID", null);
 
-        resultsList.remove(slot);
-        adapter.notifyDataSetChanged();
+        // Create new session aka the request
+        Session session = new Session();
+
+        session.setStudentId(studentId);
+        //session.setStudentEmail(studentId);
+        session.setTutorId(slot.getTutor());
+        //session.setTutorEmail(slot.getTutorEmail());
+        session.setCourse(slot.getCourse());
+        session.setStatus("PENDING");
+        session.setStudentEmail(preferences.getString("email", null));
+
+        session.setDate(slot.getDate().toString());
+        session.setStartTime(slot.getStartTime().toString());
+        session.setEndTime(slot.getEndTime().toString());
+
+        //add session request to db
+        // TODO: How to access slot(availability) ID from db to mark as USED?
+        db.collection("sessions")
+                .add(session)
+                .addOnSuccessListener(docRef -> {
+                    db.collection("availabilities")
+                            .document(slot.getId())
+                            .update("used", true)
+                            .addOnSuccessListener(v -> Toast.makeText(this,
+                                    "Session request sent!",
+                                    Toast.LENGTH_SHORT).show());
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Request failed: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show()
+                );
     }
 
     private static class SearchResultsAdapter extends RecyclerView.Adapter<SearchResultsAdapter.ViewHolder> {
@@ -156,9 +185,25 @@ public class StudentSearchPage extends AppCompatActivity {
 
 
             holder.tutorName.setText("Tutor: " + slot.getTutor());
-            // TODO: holder.tutorRating.setText("Rating: " + slot.getTutorRating());  Not yet implemented ratings
             holder.date.setText("Date: " + formattedDate);
             holder.time.setText("Time: " + formattedTimeRange);
+
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("users").document(slot.getTutor())
+                    .get()
+                    .addOnSuccessListener(document -> {
+                        if (document.exists()) {
+                            Double rating = document.getDouble("rating");
+                            if (rating != null) {
+                                holder.tutorRating.setText("Rating: " + String.format("%.1f", rating));
+                            } else {
+                                holder.tutorRating.setText("Rating: N/A");
+                            }
+                        } else {
+                            holder.tutorRating.setText("Rating: N/A");
+                        }
+                    })
+                    .addOnFailureListener(e -> holder.tutorRating.setText("Rating: N/A"));
 
             holder.requestButton.setOnClickListener(v -> {
                 if (listener != null)
@@ -171,7 +216,7 @@ public class StudentSearchPage extends AppCompatActivity {
             return items.size();
         }
 
-        //missing course info?
+
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView tutorName, tutorRating, date, time;
             Button requestButton;
