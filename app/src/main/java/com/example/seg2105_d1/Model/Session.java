@@ -11,8 +11,9 @@ public class Session {
     List<String> availabilitySlotIds;
     String course;
     String studentEmail;
+    String tutorEmail;
     String status;
-
+    String studentId;
     String tutorId;
 
     private LocalTime startTime;
@@ -51,6 +52,8 @@ public class Session {
         this.course = course;
     }
 
+    public String getTutorEmail() { return tutorEmail; }
+    public void setTutorEmail(String tutorEmail) { this.tutorEmail = tutorEmail; }
     public String getStudentEmail() { return studentEmail; }
     public void setStudentEmail(String studentEmail) { this.studentEmail = studentEmail; }
 
@@ -86,10 +89,15 @@ public class Session {
         this.status = status;
     }
 
+    public String getStudentId(){
+        return studentId;
+    }
+    public void setStudentId(String studentId){
+        this.studentId = studentId;
+    }
     public String getTutorId(){
         return tutorId;
     }
-
     public void setTutorId(String tutorId){
         this.tutorId = tutorId;
     }

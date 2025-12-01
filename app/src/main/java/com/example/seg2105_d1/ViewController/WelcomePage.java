@@ -73,47 +73,77 @@ public class WelcomePage extends AppCompatActivity {
                 break;
             case "TUTOR":
                 //button creation
-                Button createSession = new Button(this);
-                createSession.setText("Create Session");
+                Button createAvailability = new Button(this);
+                createAvailability.setText("Create Availability");
                 //button formatting
                 LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                 );
                 layoutParams1.gravity = Gravity.CENTER;
-                createSession.setLayoutParams(layoutParams1);
-                linearLayout.addView(createSession);
+                createAvailability.setLayoutParams(layoutParams1);
+                linearLayout.addView(createAvailability);
 
                 //button creation
-                Button viewSessions = new Button(this);
-                viewSessions.setText("View Sessions");
+                Button viewAvailability = new Button(this);
+                viewAvailability.setText("View Availability");
                 //button formatting
-                viewSessions.setLayoutParams(layoutParams1);
+                viewAvailability.setLayoutParams(layoutParams1);
                 //adds button to layout
-                linearLayout.addView(viewSessions);
+                linearLayout.addView(viewAvailability);
 
                 //send to TutorSessionCreator if button selected
-                createSession.setOnClickListener(v -> {
+                createAvailability.setOnClickListener(v -> {
                     Intent tmpIntent = new Intent(WelcomePage.this, TutorSessionCreator.class);
 
                     startActivity(tmpIntent);
                 });
 
                 //send to TutorSessionViewer if button selected
-                viewSessions.setOnClickListener(v -> {
+                viewAvailability.setOnClickListener(v -> {
                     Intent tmpIntent = new Intent(WelcomePage.this, TutorSessionViewer.class);
                     startActivity(tmpIntent);
                 });
                 break;
             //Temporary placeholder case
             case "STUDENT":
+                //button creation
+                Button createSession = new Button(this);
+                createSession.setText("Create Session");
+                //button formatting
+                LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                layoutParams2.gravity = Gravity.CENTER;
+                createSession.setLayoutParams(layoutParams2);
+                linearLayout.addView(createSession);
+
+                //button creation
+                Button viewSessions = new Button(this);
+                viewSessions.setText("View Sessions");
+                //button formatting
+                viewSessions.setLayoutParams(layoutParams2);
+                //adds button to layout
+                linearLayout.addView(viewSessions);
+
+                //send to TutorSessionCreator if button selected
+                createSession.setOnClickListener(v -> {
+                    Intent tmpIntent = new Intent(WelcomePage.this, StudentSessionCreator.class);
+
+                    startActivity(tmpIntent);
+                });
+
+                //send to TutorSessionViewer if button selected
+                viewSessions.setOnClickListener(v -> {
+                    Intent tmpIntent = new Intent(WelcomePage.this, StudentSessionViewer.class);
+                    startActivity(tmpIntent);
+                });
                 break;
         }
 
         //finishes the activity, returns to login activity
         logOffButton.setOnClickListener(v -> {
-            Intent intent1 = new Intent(WelcomePage.this, MainPage.class);
-            startActivity(intent1);
             finish();
         });
     }
