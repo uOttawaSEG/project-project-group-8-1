@@ -135,7 +135,7 @@ public class UserDetail extends AppCompatActivity {
 
         //only show courses when tutor
         if ("TUTOR".equalsIgnoreCase(role)) {
-            List<String> courses = (List<String>) doc.get("courseOffered");
+            List<String> courses = (List<String>) doc.get("coursesOffered");
             if (courses != null && !courses.isEmpty()) {
                 tvClasses.setVisibility(VISIBLE);
                 tvClasses.setText("Courses: " + String.join(", ", courses));

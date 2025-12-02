@@ -66,6 +66,8 @@ public class TutorSessionCreator extends AppCompatActivity {
     private String tutorId;
 
     private String tutorName;
+
+    private String tutorEmail;
     private boolean manualApproval;
 
 
@@ -88,6 +90,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         tutorId = preferences.getString("userID", null);
         tutorName = preferences.getString("userName", null);
+        tutorEmail = preferences.getString("userEmail", null);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availabilityList);
         listAvailabilities.setAdapter(adapter);
@@ -171,6 +174,7 @@ public class TutorSessionCreator extends AppCompatActivity {
             availability.setEndTime(endTimeDB);
             availability.setTutorId(tutorId);
             availability.setTutorName(tutorName);
+            availability.setTutorEmail(tutorEmail);
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
@@ -197,6 +201,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                 slot.setEndTime(slotEnd.format(DBTimeFormat));
                 slot.setTutorId(availability.getTutorId());
                 slot.setTutorName(availability.getTutorName());
+                slot.setTutorEmail(availability.getTutorEmail());
 
                 slots.add(slot);
                 startTime = slotEnd;
@@ -233,6 +238,7 @@ public class TutorSessionCreator extends AppCompatActivity {
                             data.put("endTime", slot.getEndTime().toString());
                             data.put("tutorId", tutorId);
                             data.put("tutorName",tutorName);
+                            data.put("tutorEmail",tutorEmail);
                             data.put("isBooked",false);
                             batch.set(docRef, data);
                         }

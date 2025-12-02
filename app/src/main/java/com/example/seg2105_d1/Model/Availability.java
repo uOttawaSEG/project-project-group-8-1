@@ -14,6 +14,8 @@ public class Availability {
 
     private String tutorId;
 
+    private String tutorEmail;
+
     private String tutorName;
 
 
@@ -75,6 +77,14 @@ public class Availability {
 
     public void setTutorName(String tutorName)  {
         this.tutorName = tutorName;
+    }
+
+    public String getTutorEmail() {
+        return tutorEmail;
+    }
+
+    public void setTutorEmail(String tutorEmail)  {
+        this.tutorEmail = tutorEmail;
     }
 
 

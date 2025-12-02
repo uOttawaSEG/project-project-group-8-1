@@ -49,6 +49,8 @@ public class StudentSessionViewer extends AppCompatActivity {
     private FirebaseFirestore db;
     private String studentId;
 
+    private String studentEmail;
+
     private Button btnUpcoming, btnPast;
     private RecyclerView recyclerViewSessions;
 
@@ -75,6 +77,7 @@ public class StudentSessionViewer extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         studentId = preferences.getString("userID", null);
+        studentEmail = preferences.getString("userEmail", null);
 
         btnUpcoming = findViewById(R.id.btnUpcoming);
         btnPast = findViewById(R.id.btnPast);
@@ -108,7 +111,7 @@ public class StudentSessionViewer extends AppCompatActivity {
         }
 
         Query query = db.collection("sessions")
-                .whereEqualTo("studentId", studentId)
+                .whereEqualTo("studentEmail", studentEmail)
                 .orderBy("status", Query.Direction.ASCENDING)
                 .orderBy("date", Query.Direction.ASCENDING)
                 .orderBy("startTime", Query.Direction.ASCENDING);
@@ -210,7 +213,7 @@ public class StudentSessionViewer extends AppCompatActivity {
                     if (slotId == null || slotId.isEmpty()) {
                         continue;
                     }
-                    db.collection("availabilities").document(slotId).update("used", false);
+                    db.collection("availabilities").document(slotId).update("isBooked", false);
                 }
             }
 

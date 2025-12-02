@@ -23,6 +23,7 @@ import com.example.seg2105_d1.Model.Session;
 import com.example.seg2105_d1.R;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -90,7 +91,7 @@ public class StudentSessionCreator extends AppCompatActivity {
 
         db.collection("users")
                 .whereEqualTo("role", "TUTOR")
-                .whereArrayContains("courseOffered", courseCode)
+                .whereArrayContains("coursesOffered", courseCode)
                 .get()
                 .addOnSuccessListener(snapshot -> {
 
@@ -117,6 +118,8 @@ public class StudentSessionCreator extends AppCompatActivity {
         db.collection("availabilities")
                 .whereIn("tutorId", tutorIds)
                 .whereEqualTo("isBooked", false)
+                .orderBy("date", Query.Direction.ASCENDING)
+                .orderBy("startTime", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(snapshot -> {
 
@@ -165,6 +168,7 @@ public class StudentSessionCreator extends AppCompatActivity {
 
                     Map<String, Object> data = new HashMap<>();
                     data.put("tutorId", slot.getTutorId());
+                    data.put("tutorEmail", slot.getTutorEmail());
                     data.put("studentEmail", studentEmail);
                     data.put("course", course);
                     data.put("status", autoApprove ? "APPROVED" : "PENDING");
