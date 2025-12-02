@@ -171,13 +171,18 @@ public class StudentSessionViewer extends AppCompatActivity {
     private boolean isInTheFuture(Session s, LocalDate now) {
         try {
             LocalDate sessionDate = s.getDate();
-            if (!sessionDate.isBefore(now)) {
+            LocalTime start = s.getStartTime();
+
+            if (sessionDate.isAfter(now)) {
                 return true;
-            } else if (sessionDate.isEqual(now)) {
-                return !s.getStartTime().isBefore(LocalTime.now());
-            } else {
-                return false;
             }
+
+            if (sessionDate.isEqual(now)) {
+                return start.isAfter(LocalTime.now());
+            }
+
+            return false;
+
         } catch (Exception e) {
             return false;
         }
