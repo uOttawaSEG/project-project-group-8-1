@@ -163,7 +163,7 @@ public class TutorSignUpPage extends AppCompatActivity implements AdapterView.On
             data.put("accountPassword", newTutor.getAccountPassword());
             data.put("phoneNumber", newTutor.getPhoneNumber());
             data.put("highestDegree", newTutor.getHighestDegree());
-            data.put("courseOffered", newTutor.getCoursesOffered());
+            data.put("coursesOffered", newTutor.getCoursesOffered());
             data.put("registrationStatus", newTutor.getRegistrationStatus());
             data.put("manualApproval",false);
             data.put("ratingSum", 0);

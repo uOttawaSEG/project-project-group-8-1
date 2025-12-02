@@ -22,12 +22,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.seg2105_d1.Model.Availability;
 import com.example.seg2105_d1.R;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.type.DateTime;
 
@@ -58,10 +61,16 @@ public class TutorSessionCreator extends AppCompatActivity {
     private ArrayList<ArrayList<String>> availabilityIds = new ArrayList<>();
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DateTimeFormatter twelveHourTimeFormat = DateTimeFormatter.ofPattern("hh:mm a");
+
+    private final DateTimeFormatter DBTimeFormat = DateTimeFormatter.ofPattern("HH:mm");
 
     private FirebaseFirestore db;
     private String tutorId;
+
+    private String tutorName;
+
+    private String tutorEmail;
     private boolean manualApproval;
 
 
@@ -83,6 +92,8 @@ public class TutorSessionCreator extends AppCompatActivity {
         // Get tutor ID (from firebase)
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         tutorId = preferences.getString("userID", null);
+        tutorName = preferences.getString("userName", null);
+        tutorEmail = preferences.getString("userEmail", null);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availabilityList);
         listAvailabilities.setAdapter(adapter);
@@ -139,7 +150,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
         //iterate through list of times in the day and add to spinner
         for(int i =0; i<48; i++){
-            times.add(time.format(timeFormat));
+            times.add(time.format(twelveHourTimeFormat));
             time = time.plusMinutes(30);
         }
 
@@ -154,11 +165,19 @@ public class TutorSessionCreator extends AppCompatActivity {
             String start = spinnerStart.getSelectedItem().toString();
             String end = spinnerEnd.getSelectedItem().toString();
 
+            LocalTime localStartTime = LocalTime.parse(start,twelveHourTimeFormat);
+            LocalTime localEndTime = LocalTime.parse(end,twelveHourTimeFormat);
+
+            String startTimeDB = localStartTime.format(DBTimeFormat);
+            String endTimeDB = localEndTime.format(DBTimeFormat);
+
             Availability availability = new Availability();
             availability.setDate(dateFormat.format(selectedDate));  // yyyy-MM-dd
-            availability.setStartTime(start);
-            availability.setEndTime(end);
-            availability.setTutor(tutorId);
+            availability.setStartTime(startTimeDB);
+            availability.setEndTime(endTimeDB);
+            availability.setTutorId(tutorId);
+            availability.setTutorName(tutorName);
+            availability.setTutorEmail(tutorEmail);
 
             if (!availability.timeOrderValid()) {
                 Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_SHORT).show();
@@ -181,9 +200,11 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
-                slot.setStartTime(timeFormat.format(startTime));
-                slot.setEndTime(timeFormat.format(slotEnd));
-                slot.setTutor(availability.getTutor());
+                slot.setStartTime(startTime.format(DBTimeFormat));
+                slot.setEndTime(slotEnd.format(DBTimeFormat));
+                slot.setTutorId(availability.getTutorId());
+                slot.setTutorName(availability.getTutorName());
+                slot.setTutorEmail(availability.getTutorEmail());
 
                 slots.add(slot);
                 startTime = slotEnd;
@@ -219,6 +240,9 @@ public class TutorSessionCreator extends AppCompatActivity {
                             data.put("startTime", slot.getStartTime().toString());
                             data.put("endTime", slot.getEndTime().toString());
                             data.put("tutorId", tutorId);
+                            data.put("tutorName",tutorName);
+                            data.put("tutorEmail",tutorEmail);
+                            data.put("isBooked",false);
                             batch.set(docRef, data);
                         }
 
@@ -241,23 +265,66 @@ public class TutorSessionCreator extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Delete Availability")
                     .setMessage("Are you sure you want to delete this slot?")
-                    .setPositiveButton("Delete", (dialog, which) ->{
-                        WriteBatch batch = db.batch();
+                    .setPositiveButton("Delete", (dialog, which) -> {
 
+                        WriteBatch batch = db.batch();
+                        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
+                        // Build all Firestore queries first
                         for (String slotId : availabilityID) {
-                            //implement check for if availability is linked to a session
-                            //availabilities either need a used attribute
-                            // or the sessions collection needs to be iterated through to find slotId
-                            batch.delete(db.collection("availabilities").document(slotId));
+                            Task<QuerySnapshot> t = db.collection("sessions")
+                                    .whereArrayContains("availabilitySlotIds", slotId)
+                                    .whereEqualTo("status", "APPROVED")
+                                    .get();
+
+                            tasks.add(t);
                         }
 
-                        batch.commit()
-                                .addOnSuccessListener(aVoid ->{
-                                    Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
+                        // Wait for ALL session checks to finish
+                        Tasks.whenAllSuccess(tasks)
+                                .addOnSuccessListener(results -> {
+
+                                    boolean blocked = false;
+
+                                    // Check each QuerySnapshot result
+                                    for (Object result : results) {
+                                        QuerySnapshot snap = (QuerySnapshot) result;
+
+                                        if (!snap.isEmpty()) {
+                                            blocked = true;
+                                            break;
+                                        }
+                                    }
+
+                                    // If any is blocked → stop everything
+                                    if (blocked) {
+                                        Toast.makeText(this,
+                                                "Cannot delete: this availability is linked to an approved session.",
+                                                Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+
+                                    // Otherwise safe → delete all slots
+                                    for (String slotId : availabilityID) {
+                                        batch.delete(db.collection("availabilities").document(slotId));
+                                    }
+
+                                    batch.commit()
+                                            .addOnSuccessListener(aVoid ->
+                                                    Toast.makeText(this,
+                                                            "Availability slot deleted.",
+                                                            Toast.LENGTH_SHORT).show())
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(this,
+                                                            "Error deleting slot.",
+                                                            Toast.LENGTH_SHORT).show());
+
                                 })
-                                .addOnFailureListener(e ->{
-                                    Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
-                                });
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this,
+                                                "Error checking sessions.",
+                                                Toast.LENGTH_SHORT).show());
+
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -293,7 +360,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                             if (date == null || start == null || end == null) continue;
 
-                            if (checkPast.isAfter(LocalDate.now())) {
+                            if (!checkPast.isBefore(LocalDate.now())) {
                                 if (currentDate == null) {
                                     currentDate = date;
                                     currentStart = start;

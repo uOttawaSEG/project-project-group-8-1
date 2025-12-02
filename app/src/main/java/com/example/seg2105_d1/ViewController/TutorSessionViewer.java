@@ -190,7 +190,7 @@ public class TutorSessionViewer extends AppCompatActivity {
                     if(slotId == null || slotId.isEmpty()){
                         continue;
                     }
-                    db.collection("availabilities").document(slotId).update("used", false);
+                    db.collection("availabilities").document(slotId).update("isBooked", false);
                 }
             }
 
