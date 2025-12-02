@@ -85,7 +85,7 @@ public class TutorSessionCreator extends AppCompatActivity {
         // Get tutor ID (from firebase)
         SharedPreferences preferences = getSharedPreferences("userPref", MODE_PRIVATE);
         tutorId = preferences.getString("userID", null);
-        tutorId = preferences.getString("userName", null);
+        tutorName = preferences.getString("userName", null);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, availabilityList);
         listAvailabilities.setAdapter(adapter);

@@ -19,7 +19,7 @@ public class Availability {
 
     private boolean isBooked;
 
-    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+    private final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -42,7 +42,7 @@ public class Availability {
     }
 
     public void setStartTime(String startTime) {
-        this.startTime = LocalTime.parse(startTime, timeFormat);;
+        this.startTime = LocalTime.parse(startTime, timeFormat);
     }
 
     public LocalTime getEndTime() {
