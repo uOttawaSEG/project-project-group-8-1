@@ -238,11 +238,20 @@ public class StudentSessionCreator extends AppCompatActivity {
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
             Availability slot = items.get(position);
+            double rate = 0f;
 
             DateTimeFormatter timeFormatSpinner = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             DateTimeFormatter timeFormatDb = DateTimeFormatter.ofPattern("HH:mm");
 
-            holder.tvTutorName.setText("Tutor: " + slot.getTutorName());
+            FirebaseFirestore.getInstance().collection("users")
+                    .document(slot.getTutorId())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot ->
+                            {
+                                rate = documentSnapshot.getDouble("rating").doubleValue();
+                            });
+
+            holder.tvTutorName.setText("Tutor: " + slot.getTutorName() + "   Rating: " + slot.getRating());
             holder.tvCourse.setText("Course: " + courseCode);
             holder.tvDateTime.setText(
                     slot.getDate().format(timeFormatSpinner) + " | " +
