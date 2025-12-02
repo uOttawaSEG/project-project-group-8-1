@@ -22,12 +22,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.seg2105_d1.Model.Availability;
 import com.example.seg2105_d1.R;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.type.DateTime;
 
@@ -262,23 +265,66 @@ public class TutorSessionCreator extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Delete Availability")
                     .setMessage("Are you sure you want to delete this slot?")
-                    .setPositiveButton("Delete", (dialog, which) ->{
-                        WriteBatch batch = db.batch();
+                    .setPositiveButton("Delete", (dialog, which) -> {
 
+                        WriteBatch batch = db.batch();
+                        List<Task<QuerySnapshot>> tasks = new ArrayList<>();
+
+                        // Build all Firestore queries first
                         for (String slotId : availabilityID) {
-                            //implement check for if availability is linked to a session
-                            //availabilities either need a used attribute
-                            // or the sessions collection needs to be iterated through to find slotId
-                            batch.delete(db.collection("availabilities").document(slotId));
+                            Task<QuerySnapshot> t = db.collection("sessions")
+                                    .whereArrayContains("availabilitySlotIds", slotId)
+                                    .whereEqualTo("status", "APPROVED")
+                                    .get();
+
+                            tasks.add(t);
                         }
 
-                        batch.commit()
-                                .addOnSuccessListener(aVoid ->{
-                                    Toast.makeText(this, "Availability slot deleted.", Toast.LENGTH_SHORT).show();
+                        // Wait for ALL session checks to finish
+                        Tasks.whenAllSuccess(tasks)
+                                .addOnSuccessListener(results -> {
+
+                                    boolean blocked = false;
+
+                                    // Check each QuerySnapshot result
+                                    for (Object result : results) {
+                                        QuerySnapshot snap = (QuerySnapshot) result;
+
+                                        if (!snap.isEmpty()) {
+                                            blocked = true;
+                                            break;
+                                        }
+                                    }
+
+                                    // If any is blocked → stop everything
+                                    if (blocked) {
+                                        Toast.makeText(this,
+                                                "Cannot delete: this availability is linked to an approved session.",
+                                                Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+
+                                    // Otherwise safe → delete all slots
+                                    for (String slotId : availabilityID) {
+                                        batch.delete(db.collection("availabilities").document(slotId));
+                                    }
+
+                                    batch.commit()
+                                            .addOnSuccessListener(aVoid ->
+                                                    Toast.makeText(this,
+                                                            "Availability slot deleted.",
+                                                            Toast.LENGTH_SHORT).show())
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(this,
+                                                            "Error deleting slot.",
+                                                            Toast.LENGTH_SHORT).show());
+
                                 })
-                                .addOnFailureListener(e ->{
-                                    Toast.makeText(this, "Error deleting slot.", Toast.LENGTH_SHORT).show();
-                                });
+                                .addOnFailureListener(e ->
+                                        Toast.makeText(this,
+                                                "Error checking sessions.",
+                                                Toast.LENGTH_SHORT).show());
+
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
