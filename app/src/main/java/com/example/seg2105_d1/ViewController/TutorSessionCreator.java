@@ -60,6 +60,8 @@ public class TutorSessionCreator extends AppCompatActivity {
     private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private final DateTimeFormatter twelveHourTimeFormat = DateTimeFormatter.ofPattern("hh:mm a");
 
+    private final DateTimeFormatter DBTimeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
     private FirebaseFirestore db;
     private String tutorId;
 
@@ -157,10 +159,16 @@ public class TutorSessionCreator extends AppCompatActivity {
             String start = spinnerStart.getSelectedItem().toString();
             String end = spinnerEnd.getSelectedItem().toString();
 
+            LocalTime localStartTime = LocalTime.parse(start,twelveHourTimeFormat);
+            LocalTime localEndTime = LocalTime.parse(end,twelveHourTimeFormat);
+
+            String startTimeDB = localStartTime.format(DBTimeFormat);
+            String endTimeDB = localEndTime.format(DBTimeFormat);
+
             Availability availability = new Availability();
             availability.setDate(dateFormat.format(selectedDate));  // yyyy-MM-dd
-            availability.setStartTime(start);
-            availability.setEndTime(end);
+            availability.setStartTime(startTimeDB);
+            availability.setEndTime(endTimeDB);
             availability.setTutorId(tutorId);
             availability.setTutorName(tutorName);
 
@@ -185,9 +193,10 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                 Availability slot = new Availability();
                 slot.setDate(date.toString());
-                slot.setStartTime(twelveHourTimeFormat.format(startTime));
-                slot.setEndTime(twelveHourTimeFormat.format(slotEnd));
+                slot.setStartTime(startTime.format(DBTimeFormat));
+                slot.setEndTime(slotEnd.format(DBTimeFormat));
                 slot.setTutorId(availability.getTutorId());
+                slot.setTutorName(availability.getTutorName());
 
                 slots.add(slot);
                 startTime = slotEnd;
@@ -223,6 +232,8 @@ public class TutorSessionCreator extends AppCompatActivity {
                             data.put("startTime", slot.getStartTime().toString());
                             data.put("endTime", slot.getEndTime().toString());
                             data.put("tutorId", tutorId);
+                            data.put("tutorName",tutorName);
+                            data.put("isBooked",false);
                             batch.set(docRef, data);
                         }
 
@@ -297,7 +308,7 @@ public class TutorSessionCreator extends AppCompatActivity {
 
                             if (date == null || start == null || end == null) continue;
 
-                            if (checkPast.isAfter(LocalDate.now())) {
+                            if (!checkPast.isBefore(LocalDate.now())) {
                                 if (currentDate == null) {
                                     currentDate = date;
                                     currentStart = start;

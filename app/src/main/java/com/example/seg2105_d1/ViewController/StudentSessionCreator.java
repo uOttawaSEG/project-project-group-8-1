@@ -26,7 +26,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StudentSessionCreator extends AppCompatActivity {
 
@@ -158,37 +160,38 @@ public class StudentSessionCreator extends AppCompatActivity {
                 .get()
                 .addOnSuccessListener(tutorDoc -> {
 
-                    boolean autoApprove = !tutorDoc.getBoolean("manualApproval");
+                    boolean manual = Boolean.TRUE.equals(tutorDoc.getBoolean("manualApproval"));
+                    boolean autoApprove = !manual;
 
-                    Session session = new Session();
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("tutorId", slot.getTutorId());
+                    data.put("studentEmail", studentEmail);
+                    data.put("course", course);
+                    data.put("status", autoApprove ? "APPROVED" : "PENDING");
 
-                    session.setTutorId(slot.getTutorId());
-                    session.setStudentEmail(studentEmail);
-                    session.setCourse(course);
+                    // Force all strings, DO NOT store LocalDate/LocalTime
+                    data.put("date", slot.getDate().toString());
+                    data.put("startTime", slot.getStartTime().toString());
+                    data.put("endTime", slot.getEndTime().toString());
 
-                    session.setStatus(autoApprove ? "APPROVED" : "PENDING");
-
-                    session.setDate(slot.getDate().format(dateFormat));
-                    session.setStartTime(timeFormatDb.format(slot.getStartTime()));
-                    session.setEndTime(timeFormatDb.format(slot.getStartTime()));
-
-                    List<String> slotList = new ArrayList<>();
-                    slotList.add(availabilityId);
-                    session.setAvailabilitySlotIds(slotList);
+                    List<String> slotIds = new ArrayList<>();
+                    slotIds.add(availabilityId);
+                    data.put("availabilitySlotIds", slotIds);
 
                     db.collection("sessions")
-                            .add(session)
+                            .add(data)
                             .addOnSuccessListener(ref -> {
 
-                                // Step 2: mark availability booked
+                                // Mark availability as booked
                                 db.collection("availabilities")
                                         .document(availabilityId)
-                                        .update("isBooked", true);
-
-                                Toast.makeText(this,
-                                        autoApprove ? "Session booked" : "Request sent to tutor",
-                                        Toast.LENGTH_SHORT).show();
-
+                                        .update("isBooked", true)
+                                        .addOnSuccessListener(a -> {
+                                            Toast.makeText(this,
+                                                    autoApprove ? "Session booked" : "Request sent to tutor",
+                                                    Toast.LENGTH_SHORT).show();
+                                            searchTutors();
+                                        });
                             })
                             .addOnFailureListener(e ->
                                     Toast.makeText(this,
